@@ -12,13 +12,14 @@ namespace InfiniteModuleEditor
 {
     public class PluginReader
     {
-        public List<PluginItem> LoadPlugin(string PluginPath)
+        public List<PluginItem> LoadPlugin(string PluginPath, Tag Tag)
         {
             List<PluginItem> PluginItems = new List<PluginItem>();
             XmlDocument PluginXml = new XmlDocument();
             PluginXml.Load(PluginPath);
             XmlNodeList AllNodes = PluginXml.SelectNodes("//*");
             int Position = 0;
+            int CurrentNode = 0;
             foreach (XmlNode Node in AllNodes)
             {
                 switch (Node.Name.ToLower()) //get item names for enums, flags
@@ -33,11 +34,26 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_block_64":
                     case "_field_block_v2":
-                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = Position });
+                        if (!Tag.DataBlockInfo.ContainsKey(Position))
+                        {
+                            System.Diagnostics.Debug.WriteLine("No block found at offset {0} for item {1}, removing child nodes", Position, Node.Attributes.GetNamedItem("name").Value);
+                            Node.ParentNode.RemoveAll();
+                        }
+                        else 
+                        {
+                            PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = Position });
+                            int Size = -1;
+                            Tag.DataBlockInfo.TryGetValue(Position, out Size);
+                            if (Tag.DataBlockInfo.ContainsKey(Position + Size))
+                            {
+                                Node.ParentNode.Clone();
+                            }
+                        }
                         break;
                     case "_field_array":
                     case "_field_struct":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagStruct, Offset = Position });
+                        
                         break;
                     case "_field_explanation":
                     case "_field_custom":
@@ -184,14 +200,18 @@ namespace InfiniteModuleEditor
                         Console.WriteLine("Offsets may be incorrect");
                         break;
                 }
+                CurrentNode++;
             }
-            return PluginItems;
             /*
             foreach (PluginItem pluginItem in PluginItems)
             {
-                Console.WriteLine("Item: {0} | Type: {1} | Offset: {2}", pluginItem.Name, pluginItem.FieldType, pluginItem.Offset);
+                System.Diagnostics.Debug.WriteLine("Item: {0} | Type: {1} | Offset: {2}", pluginItem.Name, pluginItem.FieldType, pluginItem.Offset);
             }
             */
+            return PluginItems;
+            
+           
+            
         }
     }
 

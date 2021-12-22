@@ -488,7 +488,11 @@ namespace InfiniteModuleEditor
             }
 
             TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
-
+            foreach (DataBlock DB in tag.DataBlockList)
+            {
+                tag.DataBlockInfo.Add((int)DB.Offset, (int)DB.Size);
+                System.Diagnostics.Debug.WriteLine("Data block at offset {0} has a size of {1} and is of type {2}", DB.Offset, DB.Size, DB.Section);
+            }
 
             //Not sure about this stuff, might not be in every tag?
             /*
@@ -534,14 +538,13 @@ namespace InfiniteModuleEditor
                     MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName);
                     return null;
             }
-            List<PluginItem> PluginItems = pluginReader.LoadPlugin(PluginToLoad);
+            List<PluginItem> PluginItems = pluginReader.LoadPlugin(PluginToLoad, tag);
 
             foreach (PluginItem Item in PluginItems)
             {
                 switch (Item.FieldType)
                 {
                     case PluginField.Real:
-                        System.Diagnostics.Debug.WriteLine(Item.Name + Item.Offset.ToString());
                         Item.Value = BitConverter.ToSingle(tag.TagData, Item.Offset);
                         break;
                     case PluginField.StringID:
@@ -555,7 +558,6 @@ namespace InfiniteModuleEditor
                         Item.Value = tag.TagData[Item.Offset];
                         break;
                     case PluginField.TagReference:
-                        System.Diagnostics.Debug.WriteLine(Item.Name + Item.Offset.ToString());
                         Item.Value = new TagReference
                         {
                             TypeInfo = BitConverter.ToUInt64(tag.TagData, Item.Offset),

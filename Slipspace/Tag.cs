@@ -23,6 +23,7 @@ namespace InfiniteModuleEditor
         public List<PluginItem> TagValues { get; set; }
         public string Name { get; set; }
         public string ShortName { get; set; }
+        public Dictionary<int, int> DataBlockInfo = new Dictionary<int, int>();
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 80)]

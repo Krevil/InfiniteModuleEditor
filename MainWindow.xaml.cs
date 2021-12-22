@@ -33,7 +33,7 @@ namespace InfiniteModuleEditor
         public string TagFileName;
         public MemoryStream TagStream;
 
-        //TODO: UI style improvements, add a header so user knows what module they are editing, tag searching, parse tag blocks or you won't be able to read anything with them
+        //TODO: UI style improvements, add a header so user knows what module they are editing, parse tag blocks or you won't be able to read anything with them
 
         public MainWindow()
         {
@@ -108,11 +108,6 @@ namespace InfiniteModuleEditor
             }
         }
 
-        //private void TagListFilter_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (FileStreamOpen)
-        //        TagList.ItemsSource = Module.ModuleFiles.Keys.ToList().FindAll(x => x.Contains(TagListFilter.Text) == true);
-        //}
         private void TagListFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (FileStreamOpen && TagListFilter.Text != "Filter Tags")
@@ -134,7 +129,6 @@ namespace InfiniteModuleEditor
 
         private void TagViewer_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            //MessageBox.Show((e.EditingElement as TextBox).Text.ToString()); //stupid code to get new text
             int Index = ModuleFile.Tag.TagValues.FindIndex(x => x.Offset == (e.Row.Item as PluginItem).Offset && x.Name == (e.Row.Item as PluginItem).Name);
             try
             {
