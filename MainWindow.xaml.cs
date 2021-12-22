@@ -150,6 +150,7 @@ namespace InfiniteModuleEditor
             ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
             ModuleStream.Write(ModuleEditor.WriteTag(ModuleFile, TagStream), 0, ModifiedTag.Length);
             //save compressed block from moduleeditor method
+            MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
