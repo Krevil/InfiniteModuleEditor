@@ -23,6 +23,7 @@ namespace InfiniteModuleEditor
         public List<PluginItem> TagValues { get; set; }
         public string Name { get; set; }
         public string ShortName { get; set; }
+        public Dictionary<int, int> DataBlockInfo = new Dictionary<int, int>();
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 80)]
@@ -253,13 +254,13 @@ namespace InfiniteModuleEditor
         public ulong TypeInfo;
 
         [FieldOffset(16)]
-        public int Count;
-
-        [FieldOffset(20)]
         public int UnknownProperty;
 
-        [FieldOffset(24)]
+        [FieldOffset(20)]
         public int UnknownProperty2;
+
+        [FieldOffset(24)]
+        public int Count;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 28)]

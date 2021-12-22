@@ -33,7 +33,7 @@ namespace InfiniteModuleEditor
         public string TagFileName;
         public MemoryStream TagStream;
 
-        //TODO: UI style improvements, add a header so user knows what module they are editing, tag searching, parse tag blocks or you won't be able to read anything with them
+        //TODO: UI style improvements, add a header so user knows what module they are editing, parse tag blocks or you won't be able to read anything with them
 
         public MainWindow()
         {
@@ -64,7 +64,7 @@ namespace InfiniteModuleEditor
                     else
                         return;
                 }
-                ModuleStream = new FileStream(ofd.FileName, FileMode.Open);
+                ModuleStream = new FileStream(ofd.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 Module = ModuleEditor.ReadModule(ModuleStream);
                 TagList.ItemsSource = Module.ModuleFiles.Keys;
                 TagList.Visibility = Visibility.Visible;
@@ -92,7 +92,7 @@ namespace InfiniteModuleEditor
                 string TagName = e.AddedItems[0].ToString();
                 TagNameText.Text = TagName;
                 TagNameText.Visibility = Visibility.Visible;
-                TagStream = ModuleEditor.SaveTag(Module, ModuleStream, TagName);
+                TagStream = ModuleEditor.GetTag(Module, ModuleStream, TagName);
                 Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagName)), out ModuleFile);
                 ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagName.Substring(TagName.LastIndexOf("\\") + 1, TagName.Length - TagName.LastIndexOf("\\") - 2));
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
@@ -108,11 +108,6 @@ namespace InfiniteModuleEditor
             }
         }
 
-        //private void TagListFilter_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (FileStreamOpen)
-        //        TagList.ItemsSource = Module.ModuleFiles.Keys.ToList().FindAll(x => x.Contains(TagListFilter.Text) == true);
-        //}
         private void TagListFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (FileStreamOpen && TagListFilter.Text != "Filter Tags")
@@ -134,7 +129,6 @@ namespace InfiniteModuleEditor
 
         private void TagViewer_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            //MessageBox.Show((e.EditingElement as TextBox).Text.ToString()); //stupid code to get new text
             int Index = ModuleFile.Tag.TagValues.FindIndex(x => x.Offset == (e.Row.Item as PluginItem).Offset && x.Name == (e.Row.Item as PluginItem).Name);
             try
             {
@@ -149,76 +143,9 @@ namespace InfiniteModuleEditor
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (PluginItem Item in ModuleFile.Tag.TagValues)
-            {
-                if (Item.GetModified())
-                {
-                    TagStream.Seek(Item.Offset + ModuleFile.Tag.Header.HeaderSize, SeekOrigin.Begin);
-                    switch (Item.FieldType)
-                    {
-                        case PluginField.Real:
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Item.Value)), 0, 4);
-                            break;
-                        case PluginField.StringID:
-                        case PluginField.Int32:
-                        case PluginField.Flags32:
-                        case PluginField.Enum32:
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToUInt32(Item.Value)), 0, 4);
-                            break;
-                        case PluginField.Int16:
-                        case PluginField.Flags16:
-                        case PluginField.Enum16:
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToUInt16(Item.Value)), 0, 2);
-                            break;
-                        case PluginField.Enum8:
-                        case PluginField.Int8:
-                        case PluginField.Flags8:
-                            TagStream.WriteByte(Convert.ToByte(Item.Value));
-                            break;
-                        case PluginField.TagReference:
-                            TagReference TagRef = (TagReference)Item.Value;
-                            TagStream.Seek(8, SeekOrigin.Current);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GlobalID)), 0, 4);
-                            TagStream.Seek(8, SeekOrigin.Current);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
-                            break;
-                        case PluginField.DataReference:
-                            DataReferenceField DataRef = (DataReferenceField)Item.Value;
-                            TagStream.Seek(20, SeekOrigin.Current);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(DataRef.Size)), 0, 4);
-                            break;
-                        case PluginField.RealBounds:
-                            RealBounds Bounds = (RealBounds)Item.Value;
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MinBound)), 0, 4);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MaxBound)), 0, 4);
-                            break;
-                        case PluginField.Vector3D:
-                            RealVector3D Vector = (RealVector3D)Item.Value;
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.I)), 0, 4);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.J)), 0, 4);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.K)), 0, 4);
-                            break;
-                        default:
-                            MessageBox.Show("Unrecognized field type " + Item.FieldType + " in Item " + Item.Name + " at offset " + Item.Offset);
-                            break;
-                    }
-                }
-            }
-            byte[] ModifiedTag = new byte[ModuleFile.Tag.Header.DataSize];
-            TagStream.Seek(ModuleFile.Tag.Header.HeaderSize, SeekOrigin.Begin);
-            TagStream.Read(ModifiedTag, 0, (int)ModuleFile.Tag.Header.DataSize);
-
+            byte[] ModifiedTag = ModuleEditor.WriteTag(ModuleFile, TagStream);
             ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
-            byte[] CompressedModifiedTag = Oodle.Compress(ModifiedTag, ModifiedTag.Length, OodleFormat.Kraken, OodleCompressionLevel.Optimal5); //Set to optimal because a smaller file can be put back in but a bigger one is no bueno
-            if (CompressedModifiedTag.Length <= ModuleFile.Blocks[1].BlockData.CompressedSize)
-            {
-                ModuleStream.Write(CompressedModifiedTag, 0, CompressedModifiedTag.Length);
-                MessageBox.Show("Done!");
-            }
-            else
-            {
-                MessageBox.Show("Compression failed - Could not compress to or below desired size: " + ModuleFile.Blocks[1].BlockData.CompressedSize + ", the size it got was " + CompressedModifiedTag.Length);
-            }
+            ModuleStream.Write(ModuleEditor.WriteTag(ModuleFile, TagStream), 0, ModifiedTag.Length);
             //save compressed block from moduleeditor method
         }
 
