@@ -33,7 +33,7 @@ namespace InfiniteModuleEditor
         public string TagFileName;
         public MemoryStream TagStream;
 
-        //TODO: tag editing, UI style improvements, add a header so user knows what module + tag they are editing, confirmation box for closing module/tag, have tag values be their actual name from the module list
+        //TODO: UI style improvements, add a header so user knows what module they are editing, tag searching, parse tag blocks or you won't be able to read anything with them
 
         public MainWindow()
         {

@@ -93,11 +93,11 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_rgb_color":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RGBColor, Offset = Position });
-                        Position += 4;
+                        Position += 12;
                         break;
                     case "_field_real_rgb_color":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealRGBColor, Offset = Position });
-                        Position += 12;
+                        Position += 16;
                         break;
                     case "_field_real_argb_color":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealARGBColor, Offset = Position });
@@ -116,6 +116,7 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_long_integer":
                     case "_field_dword_integer":
+                    case "_field_long_block_index":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int32, Offset = Position });
                         Position += 4;
                         break;
@@ -125,6 +126,7 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_short_integer":
                     case "_field_word_integer":
+                    case "_field_short_block_index":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = Position });
                         Position += 2;
                         break;
@@ -160,6 +162,7 @@ namespace InfiniteModuleEditor
                         Position += 2;
                         break;
                     case "_field_char_flags":
+                    case "_field_byte_flags":
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags8, Offset = Position });
                         Position += 28;
                         break;

@@ -519,10 +519,16 @@ namespace InfiniteModuleEditor
             switch (Path.GetExtension(ShortTagName))
             {
                 case ".grapplehookdefinitiontag":
-                    PluginToLoad += "(sagh)GrappleHookDefinitionTag.xml";
+                    PluginToLoad += "saghgrapplehookdefinitiontag.xml";
                     break;
-                case ".weapon":
-                    PluginToLoad += "(weap)weapon.xml";
+                case ".biped":
+                    PluginToLoad += "bipdbiped.xml";
+                    break;
+                case ".model":
+                    PluginToLoad += "hlmtmodel.xml";
+                    break;
+                case ".projectile":
+                    PluginToLoad += "projprojectile.xml";
                     break;
                 default:
                     MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName);
@@ -535,6 +541,7 @@ namespace InfiniteModuleEditor
                 switch (Item.FieldType)
                 {
                     case PluginField.Real:
+                        System.Diagnostics.Debug.WriteLine(Item.Name + Item.Offset.ToString());
                         Item.Value = BitConverter.ToSingle(tag.TagData, Item.Offset);
                         break;
                     case PluginField.StringID:
@@ -548,6 +555,7 @@ namespace InfiniteModuleEditor
                         Item.Value = tag.TagData[Item.Offset];
                         break;
                     case PluginField.TagReference:
+                        System.Diagnostics.Debug.WriteLine(Item.Name + Item.Offset.ToString());
                         Item.Value = new TagReference
                         {
                             TypeInfo = BitConverter.ToUInt64(tag.TagData, Item.Offset),
