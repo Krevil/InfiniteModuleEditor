@@ -97,6 +97,7 @@ namespace InfiniteModuleEditor
                 ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagName.Substring(TagName.LastIndexOf("\\") + 1, TagName.Length - TagName.LastIndexOf("\\") - 2));
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
                 TagViewer.Visibility = Visibility.Visible;
+                TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
                 ExitButton.Visibility = Visibility.Visible;
                 TagOpen = true;
@@ -107,11 +108,17 @@ namespace InfiniteModuleEditor
             }
         }
 
-        private void TagListFilter_KeyDown(object sender, KeyEventArgs e)
+        //private void TagListFilter_KeyDown(object sender, KeyEventArgs e)
+        //{
+        //    if (FileStreamOpen)
+        //        TagList.ItemsSource = Module.ModuleFiles.Keys.ToList().FindAll(x => x.Contains(TagListFilter.Text) == true);
+        //}
+        private void TagListFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (FileStreamOpen)
+            if (FileStreamOpen && TagListFilter.Text != "Filter Tags")
                 TagList.ItemsSource = Module.ModuleFiles.Keys.ToList().FindAll(x => x.Contains(TagListFilter.Text) == true);
         }
+
 
         private void TagListFilter_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -221,6 +228,7 @@ namespace InfiniteModuleEditor
             SaveButton.Visibility = Visibility.Hidden;
             ExitButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
+            TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
             
@@ -241,5 +249,12 @@ namespace InfiniteModuleEditor
                     MessageBox.Show("You have a tag open - close it first before closing the module.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        private void TagSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+        }
+
+
     }
 }
