@@ -35,7 +35,7 @@ namespace InfiniteModuleEditor
                         //System.Diagnostics.Debug.WriteLine("No block found at offset {0} for item {1}, removing child nodes", Position, AllNodes[i].Attributes.GetNamedItem("name").Value);
                         for (int y = 0; y < AllNodes[i].ChildNodes.Count; y++)
                         {
-                            System.Diagnostics.Debug.WriteLine("Removing node {0}", AllNodes[i].ChildNodes[y].Attributes.GetNamedItem("name").Value);
+                            //System.Diagnostics.Debug.WriteLine("Removing node {0}", AllNodes[i].ChildNodes[y].Attributes.GetNamedItem("name").Value);
                             AllNodes[i].RemoveChild(AllNodes[i].ChildNodes[y]);
                             Removed = true;
                         }
@@ -46,10 +46,10 @@ namespace InfiniteModuleEditor
                         string FieldName = AllNodes[i].Attributes.GetNamedItem("name").Value;
                         if (FieldName == "IMPACT ADUIO") //I don't know why this block specifically doesn't have values when the others do
                         {
-                            System.Diagnostics.Debug.WriteLine("No block found at offset {0} for item {1}, removing child nodes", Position, AllNodes[i].Attributes.GetNamedItem("name").Value);
+                            //System.Diagnostics.Debug.WriteLine("No block found at offset {0} for item {1}, removing child nodes", Position, AllNodes[i].Attributes.GetNamedItem("name").Value);
                             for (int y = 0; y < AllNodes[i].ChildNodes.Count; y++)
                             {
-                                System.Diagnostics.Debug.WriteLine("Removing node {0}", AllNodes[i].ChildNodes[y].Attributes.GetNamedItem("name").Value);
+                                //System.Diagnostics.Debug.WriteLine("Removing node {0}", AllNodes[i].ChildNodes[y].Attributes.GetNamedItem("name").Value);
                                 AllNodes[i].RemoveChild(AllNodes[i].ChildNodes[y]);
                             }
                         }
@@ -123,6 +123,7 @@ namespace InfiniteModuleEditor
                     case "_field_short_integer":
                     case "_field_word_integer":
                     case "_field_short_block_index":
+                    case "_field_custom_short_block_index":
                         Position += 2;
                         break;
                     case "_field_char_integer":
@@ -300,6 +301,7 @@ namespace InfiniteModuleEditor
                     case "_field_short_integer":
                     case "_field_word_integer":
                     case "_field_short_block_index":
+                    case "_field_custom_short_block_index":
                         PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = Position });
                         Position += 2;
                         break;

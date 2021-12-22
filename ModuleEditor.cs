@@ -409,7 +409,7 @@ namespace InfiniteModuleEditor
             return null;
         }
 
-        public static Tag ReadTag(MemoryStream TagStream, string ShortTagName)
+        public static Tag ReadTag(MemoryStream TagStream, string ShortTagName, ModuleFile ModuleFile)
         {
 
             Tag tag = new Tag();
@@ -478,7 +478,7 @@ namespace InfiniteModuleEditor
                 TagReferenceHandle.Free();
             }
 
-            TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
+            
             foreach (DataBlock DB in tag.DataBlockList)
             {
                 tag.DataBlockInfo.Add((int)DB.Offset, (int)DB.Size);
@@ -507,6 +507,18 @@ namespace InfiniteModuleEditor
 
             TagStream.Seek(tag.Header.StringIDCount, SeekOrigin.Current); //Data starts here after the "StringID" section which is probably something else
             //TagStream.Seek(tag.Header.HeaderSize, SeekOrigin.Begin); //just to be sure
+            TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
+
+            //hacky fix for biped tags and similar to skip over unknown data that is considered part of the tag for some reason
+            byte[] TempBuffer = new byte[4];
+            TagStream.Read(TempBuffer, 0, 4);
+            while (BitConverter.ToInt32(TempBuffer, 0) != ModuleFile.FileEntry.GlobalTagId)
+            {
+                TagStream.Read(TempBuffer, 0, 4);
+            }
+            System.Diagnostics.Debug.WriteLine("Global ID Offset: {0}", TagStream.Position);
+            TagStream.Seek(-12, SeekOrigin.Current);
+
             tag.TagData = new byte[tag.Header.DataSize];
             TagStream.Read(tag.TagData, 0, (int)tag.Header.DataSize);
 
@@ -627,6 +639,7 @@ namespace InfiniteModuleEditor
                         case PluginField.Int32:
                         case PluginField.Flags32:
                         case PluginField.Enum32:
+                            System.Diagnostics.Debug.WriteLine("Writing field {0} with value {1}", Item.Name, Item.Offset);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToUInt32(Item.Value)), 0, 4);
                             break;
                         case PluginField.Int16:
