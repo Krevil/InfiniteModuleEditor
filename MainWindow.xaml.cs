@@ -87,6 +87,9 @@ namespace InfiniteModuleEditor
 
         private void TagList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (TagListFilter.IsFocused)
+                return;
+
             if (!TagOpen)
             {
                 string TagName = e.AddedItems[0].ToString();
@@ -94,7 +97,7 @@ namespace InfiniteModuleEditor
                 TagNameText.Visibility = Visibility.Visible;
                 TagStream = ModuleEditor.GetTag(Module, ModuleStream, TagName);
                 Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagName)), out ModuleFile);
-                ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagName.Substring(TagName.LastIndexOf("\\") + 1, TagName.Length - TagName.LastIndexOf("\\") - 2));
+                ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagName.Substring(TagName.LastIndexOf("\\") + 1, TagName.Length - TagName.LastIndexOf("\\") - 2), ModuleFile);
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
                 TagViewer.Visibility = Visibility.Visible;
                 TagSearch.Visibility = Visibility.Visible;
