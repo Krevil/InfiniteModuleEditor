@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfiniteModuleEditor", "InfiniteModuleEditor.csproj", "{4F73D223-9220-46ED-8847-0BEB891F0CF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OodleSharp", "..\OodleSharp-master\OodleSharp\OodleSharp.csproj", "{38918299-B8E1-4F96-88F1-DB89A9C3BE5A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F73D223-9220-46ED-8847-0BEB891F0CF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F73D223-9220-46ED-8847-0BEB891F0CF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F73D223-9220-46ED-8847-0BEB891F0CF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F73D223-9220-46ED-8847-0BEB891F0CF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38918299-B8E1-4F96-88F1-DB89A9C3BE5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38918299-B8E1-4F96-88F1-DB89A9C3BE5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38918299-B8E1-4F96-88F1-DB89A9C3BE5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38918299-B8E1-4F96-88F1-DB89A9C3BE5A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60F3E930-1C61-4DA3-A526-41E64D10FF7F}
+	EndGlobalSection
+EndGlobal

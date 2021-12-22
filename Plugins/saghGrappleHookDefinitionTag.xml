@@ -1,0 +1,274 @@
+<!-- This is a mockup plugin with original field names and such -->
+<!-- Made by Zedd lol -->
+<plugin>
+	<_field_struct name="AnyTag" srcguid="9d8cbae5-4a3e-a963-31e5-dcac24456ec0">
+		<_field_int64_integer name="vtable space" />
+		<_field_struct name="internal struct" srcguid="151d0146-479c-181f-3970-ec869043bc33">
+			<_field_long_integer name="global tag ID" />
+			<_field_pad name="local tag handle" length="4" />
+		</_field_struct>
+	</_field_struct>
+	<_field_struct name="data" srcguid="6731c606-4dff-e9c3-6c58-099bed973404">
+		<_field_struct name="common ability parameters" srcguid="a0b1eff4-483c-d954-d47d-f188cdebb4f0">
+			<_field_custom name="common ability parameters" />
+			<_field_long_enum name="input">
+				<item Name="Default" />
+				<item Name="Mobility" />
+				<item Name="Suit" />
+				<item Name="Jump" />
+				<item Name="Equipment" />
+				<item Name="Melee" />
+				<item Name="PowerUp" />
+				<item Name="Unmapped" />
+			</_field_long_enum>
+			<_field_long_flags name="flags">
+				<item Name="Use 3rd Person Camera When Active" />
+				<item Name="Hide Reticle When Active" />
+				<item Name="Is Motion Tracked (By Enemies) When Active" />
+				<item Name="One-Shot Activation Effect" />
+				<item Name="Can be activated when weapon state is relaxed" />
+				<item Name="Does Not Appear In Extended Motion Tracker Range" />
+				<item Name="Energy persists across deaths" />
+				<item Name="Activation interrupts weapon switching" />
+				<item Name="Allow activation during weapon throw" />
+				<item Name="Allow activation while sliding" />
+			</_field_long_flags>
+			<_field_real_fraction name="activation energy cost" />
+			<_field_real name="active energy consumption" />
+			<_field_real name="recharge duration" />
+			<_field_real name="recharge delay" />
+			<_field_real name="cooldown delay" />
+			<_field_reference_v2 name="activation effect" validtags="effe" />
+			<_field_real name="activation effect kill delay" />
+			<_field_char_enum name="sprint preservation">
+				<item Name="No" />
+				<item Name="Zero fraction" />
+				<item Name="Retain fraction" />
+				<item Name="Decay (normal)" />
+				<item Name="Decay (forced)" />
+			</_field_char_enum>
+			<_field_pad name="generated_pad0aca" length="3" />
+			<_field_reference_v2 name="active malleable property modifiers" validtags="gmpm" />
+			<_field_reference_v2 name="timed malleable property modifiers" validtags="gmpm" />
+		</_field_struct>
+		<_field_long_flags name="grapple hook flags">
+			<item Name="allow mount passenger to activate" />
+			<item Name="allow activation in mount if seat allows it" />
+			<item Name="suppressed by EMP" />
+			<item Name="drop support weapon when activated" />
+			<item Name="drop readied weapon when activated" />
+			<item Name="disable vehicle entering assist" />
+			<item Name="disable jump interruptions" />
+			<item Name="disable automelee" />
+			<item Name="disable crouch interruptions" />
+			<item Name="disable line of sight breaking" />
+			<item Name="enable bash" />
+			<item Name="show bash in first person" />
+			<item Name="owner uses crouched pill during pull" />
+			<item Name="owner uses crouched pill during bash" />
+			<item Name="suppress activation while holding support weapon" />
+			<item Name="suppress activation while holding must be readied weapon" />
+			<item Name="ignore soft ceilings" />
+		</_field_long_flags>
+		<_field_string_id name="first-person animation set" />
+		<_field_angle name="max aim vector angle" />
+		<_field_string_id name="animation yaw and pitch origin marker" />
+		<_field_custom name="effects" />
+		<_field_reference_v2 name="rope beam effect" validtags="effe" />
+		<_field_string_id name="rope beam effect start marker" />
+		<_field_reference_v2 name="pulling effect" validtags="effe" />
+		<_field_reference_v2 name="reeling in effect" validtags="effe" />
+		<_field_reference_v2 name="deactivate effect" validtags="effe" />
+		<_field_custom name="hook deployment parameters" />
+		<_field_reference_v2 name="hook projectile" validtags="proj" />
+		<_field_string_id name="hook projectile spawn marker" />
+		<_field_reference_v2 name="hook projectile spawn object" validtags="obje" />
+		<_field_real_vector_3d name="hook projectile spawn offset" />
+		<_field_real name="warmup time" />
+		<_field_real name="post deploy transition delay" />
+		<_field_custom name="line of sight testing" />
+		<_field_explanation name="line of sight testing" />
+		<_field_real name="line of sight test offset" />
+		<_field_real name="line of sight test offset toward user" />
+		<_field_custom name="deploy stage" />
+		<_field_string_id name="deploy animation" />
+		<_field_real name="deploy duration override" />
+		<_field_real name="max range" />
+		<_field_custom name="attaching" />
+		<_field_string_id name="biped attach marker" />
+		<_field_real_vector_3d name="biped attach offset" />
+		<_field_custom name="pull stage" />
+		<_field_string_id name="pull animation (airborne)" />
+		<_field_string_id name="pull animation (grounded)" />
+		<_field_real name="pull time to detach allowed" />
+		<_field_real name="pull detach damage threshold" />
+		<_field_real name="pull stuck timeout" />
+		<_field_real name="pull min progress per update" />
+		<_field_real name="pull post crouch suppression wait time" />
+		<_field_real name="pull collision rejection post completion duration" />
+		<_field_real name="pull collision rejection threshold target velocity" />
+		<_field_real name="pull collision damage immunity delay" />
+		<_field_real name="pull collision damage immunity minimum velocity" />
+		<_field_real name="pull collision damage immunity post completion duration" />
+		<_field_real_bounds name="pull close range definition" />
+		<_field_real name="pull physics pill offset scalar grounded" />
+		<_field_real name="pull physics pill offset scalar airborne" />
+		<_field_custom name="pull velocity control" />
+		<_field_real name="pull launch vertical impulse" />
+		<_field_real name="pull launch aim impulse" />
+		<_field_real name="pull launch decay duration" />
+		<_field_real name="pull acceleration phase duration" />
+		<_field_real name="pull base target velocity" />
+		<_field_real name="pull exit max velocity" />
+		<_field_explanation name="base pull acceleration function" />
+		<_field_custom name="base pull acceleration function" />
+		<_field_struct name="base pull acceleration function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_explanation name="launch impulse decay function" />
+		<_field_custom name="launch impulse decay function" />
+		<_field_struct name="launch impulse decay function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_explanation name="pull target movement filtering" />
+		<_field_real name="pull target velocity filter fraction" />
+		<_field_custom name="pull aim influence" />
+		<_field_explanation name="pull velocity aim influence" />
+		<_field_real name="pull aim vector influence (level geo)" />
+		<_field_real name="pull aim vector influence (bipeds)" />
+		<_field_real name="pull aim vector influence (vehicles)" />
+		<_field_angle name="pull aim vector influence falloff inner angle" />
+		<_field_angle name="pull aim vector influence falloff outer angle" />
+		<_field_real name="pull aim vector influence accumulation rate" />
+		<_field_real name="pull aim vector influence accumulation starting scalar" />
+		<_field_explanation name="pull aim vector influence falloff function" />
+		<_field_custom name="pull aim vector influence falloff function" />
+		<_field_struct name="pull aim vector influence falloff function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_explanation name="pull aim vector influence scale function" />
+		<_field_custom name="pull aim vector influence falloff function" />
+		<_field_struct name="pull aim vector influence scale function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_custom name="pull air control" />
+		<_field_explanation name="pull velocity aim influence" />
+		<_field_real name="pull air control scalar (level geo)" />
+		<_field_real name="pull air control scalar (forward and back, level geo)" />
+		<_field_real name="pull air control scalar (left and right, level geo)" />
+		<_field_real name="pull air control scalar (bipeds)" />
+		<_field_real name="pull air control scalar (forward and back, bipeds)" />
+		<_field_real name="pull air control scalar (left and right, bipeds)" />
+		<_field_real name="pull air control scalar (vehicles)" />
+		<_field_real name="pull air control scalar (forward and back, vehicles)" />
+		<_field_real name="pull air control scalar (left and right, vehicles)" />
+		<_field_real name="pull air control accumulation rate" />
+		<_field_real name="pull air control accumulation starting scalar" />
+		<_field_custom name="pull completion" />
+		<_field_explanation name="pull completion" />
+		<_field_real name="pull completion distance (level geo)" />
+		<_field_real name="pull completion distance (level geo, ceilings)" />
+		<_field_real name="pull completion distance (level geo, floors)" />
+		<_field_real name="pull completion distance (bipeds)" />
+		<_field_real name="pull completion distance (vehicles)" />
+		<_field_real name="pull vehicle interaction distance" />
+		<_field_real name="pull vehicle interaction time" />
+		<_field_angle name="pull biped automelee max angle" />
+		<_field_angle name="max allowed angle deviation (ceiling)" />
+		<_field_angle name="max allowed angle deviation (floor)" />
+		<_field_real name="pull line of sight break time" />
+		<_field_custom name="pull aftermath stage" />
+		<_field_explanation name="pull aftermath stage" />
+		<_field_real name="pull aftermath duration" />
+		<_field_real name="pull aftermath velocity (peak)" />
+		<_field_explanation name="pull aftermath velocity scale function" />
+		<_field_custom name="pull aftermath velocity scale function" />
+		<_field_struct name="pull aftermath velocity scale function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_string_id name="pull aftermath animation name" />
+		<_field_reference_v2 name="pull aftermath impact effect" validtags="effe" />
+		<_field_custom name="reel in stage" />
+		<_field_real name="reel in acceleration phase duration" />
+		<_field_real name="reel in base target velocity" />
+		<_field_angle name="reel in launch grounded slope" />
+		<_field_real name="reel in launch vertical impulse duration" />
+		<_field_real name="reel in launch vertical impulse grounded" />
+		<_field_real name="reel in launch vertical impulse airborne" />
+		<_field_real_bounds name="reel in launch roll impulse airborne" />
+		<_field_real_bounds name="reel in launch roll rotation impulse grounded" />
+		<_field_real_bounds name="reel in launch pitch impulse airborne" />
+		<_field_real_bounds name="reel in launch pitch rotation impulse grounded" />
+		<_field_real name="reel in exit velocity" />
+		<_field_real name="reel in grab distance" />
+		<_field_real name="reel in grab vertical offset" />
+		<_field_real name="reel in time to detach allowed" />
+		<_field_real name="reel in detach damage threshold" />
+		<_field_real name="reel in line of sight break time" />
+		<_field_real name="reel in min acceleration percentage to break" />
+		<_field_real_bounds name="reel in close range definition" />
+		<_field_string_id name="reel in animation" />
+		<_field_explanation name="reel in acceleration function" />
+		<_field_custom name="reel in acceleration function" />
+		<_field_struct name="reel in acceleration function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_explanation name="reel in tangential velocity damping function" />
+		<_field_custom name="reel in tangential velocity damping function" />
+		<_field_struct name="reel in tangential velocity damping function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_custom name="bash stage" />
+		<_field_explanation name="grapple bash" />
+		<_field_real name="bash activation input hold time" />
+		<_field_angle name="bash activation max aim angle" />
+		<_field_real name="bash max aim lock rate of change" />
+		<_field_real name="bash peak velocity" />
+		<_field_real name="bash charge up duration" />
+		<_field_explanation name="bash charge up velocity scale function" />
+		<_field_custom name="bash charge up velocity scale function" />
+		<_field_struct name="bash charge up velocity scale function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_real name="bash acceleration duration" />
+		<_field_explanation name="bash acceleration velocity scale function" />
+		<_field_custom name="bash acceleration velocity scale function" />
+		<_field_struct name="bash acceleration velocity scale function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_real name="bash stuck timeout" />
+		<_field_real name="bash aftermath duration" />
+		<_field_real name="bash aftermath recoil peak velocity" />
+		<_field_explanation name="bash recoil velocity scale function" />
+		<_field_custom name="bash recoil velocity scale function" />
+		<_field_struct name="bash recoil velocity scale function" srcguid="5a14a98f-4484-53fa-d468-10809e45f10a">
+			<_field_data_v2 name="data" />
+		</_field_struct>
+		<_field_string_id name="bash charge up animation" />
+		<_field_string_id name="bash flight animation" />
+		<_field_string_id name="bash finish grounded animation" />
+		<_field_string_id name="bash finish airborne animation" />
+		<_field_angle name="bash finish animation vertical angle tolerance" />
+		<_field_reference_v2 name="bash charge up effect" validtags="effe" />
+		<_field_reference_v2 name="bash launch effect" validtags="effe" />
+		<_field_reference_v2 name="bash active effect" validtags="effe" />
+		<_field_reference_v2 name="bash completion effect" validtags="effe" />
+		<_field_reference_v2 name="bash owner damage" validtags="jpt!" />
+		<_field_reference_v2 name="bash pound aoe damage" validtags="jpt!" />
+		<_field_real name="bash pound aoe epicenter walkback distance" />
+		<_field_custom name="exit stage" />
+		<_field_string_id name="retract animation" />
+		<_field_real name="exit animation speed scalar" />
+		<_field_real name="miss cooldown delay" />
+		<_field_custom name="aim assist" />
+		<_field_explanation name="AIM ASSIST" />
+		<_field_real name="aim assist range" />
+		<_field_angle name="aim assist cone angle at projectile launch" />
+		<_field_angle name="aim assist cone angle while projectile flying" />
+		<_field_real name="aim assist weight (angle)" />
+		<_field_real name="aim assist weight (distance)" />
+		<_field_real name="aim assist weight (biped)" />
+		<_field_real name="aim assist weight (vehicle)" />
+		<_field_real name="aim assist weight (weapon)" />
+	</_field_struct>
+</plugin>
