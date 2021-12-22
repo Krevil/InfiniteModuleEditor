@@ -254,13 +254,13 @@ namespace InfiniteModuleEditor
         public ulong TypeInfo;
 
         [FieldOffset(16)]
-        public int Count;
-
-        [FieldOffset(20)]
         public int UnknownProperty;
 
-        [FieldOffset(24)]
+        [FieldOffset(20)]
         public int UnknownProperty2;
+
+        [FieldOffset(24)]
+        public int Count;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 28)]
