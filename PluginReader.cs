@@ -179,6 +179,21 @@ namespace InfiniteModuleEditor
             }
         }
 
+        public List<PluginItem> LoadGenericTag(Tag Tag, int Offset)
+        {
+            List<PluginItem> PluginItems = new List<PluginItem>();
+            int Position = Offset;
+
+            for (int i = 0; i < Tag.Header.DataSize; i += 4)
+            {
+                PluginItems.Add(new PluginItem { Name = "Unknown Field " + i, FieldType = PluginField.Int32, Offset = Position });
+                Position += 4;
+            }
+
+            return PluginItems;
+        }
+
+
         public List<PluginItem> LoadPlugin(string PluginPath, Tag Tag, int Offset)
         {
             List<PluginItem> PluginItems = new List<PluginItem>();

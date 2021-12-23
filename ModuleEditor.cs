@@ -529,6 +529,7 @@ namespace InfiniteModuleEditor
             PluginReader pluginReader = new PluginReader();
             string PluginToLoad = "Plugins\\";
             
+            bool LoadXML = true;
             switch (Path.GetExtension(ShortTagName))
             {
                 case ".grapplehookdefinitiontag":
@@ -544,10 +545,11 @@ namespace InfiniteModuleEditor
                     PluginToLoad += "projprojectile.xml";
                     break;
                 default:
-                    MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName);
-                    return null;
+                    MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName + "\nUsing generic fields to display tag");
+                    LoadXML = false;
+                    break;
             }
-            List<PluginItem> PluginItems = pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset);
+            List<PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
             foreach (PluginItem Item in PluginItems)
             {

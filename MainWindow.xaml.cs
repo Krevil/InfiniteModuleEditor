@@ -90,7 +90,7 @@ namespace InfiniteModuleEditor
             if (TagListFilter.IsFocused)
                 return;
 
-            if (!TagOpen)
+            if (!TagOpen && FileStreamOpen)
             {
                 string TagName = e.AddedItems[0].ToString();
                 TagNameText.Text = TagName;
