@@ -327,7 +327,8 @@
         <Grid Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
             <Rectangle Fill="#FF1E1E1E" Stroke="#FF646464" HorizontalAlignment="Left" Height="30" Margin="0,629,0,0" VerticalAlignment="Top" Width="800"/>
             <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveButton_Click" Visibility="Hidden"/>
-            <Button x:Name="ExitButton" Content="Exit" HorizontalAlignment="Left" Margin="90,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="ExitButton_Click" Visibility="Hidden"/>
+            <Button x:Name="SaveAndExitButton" Content="Save &amp; Exit" HorizontalAlignment="Left" Margin="90,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveAndExitButton_Click" Visibility="Hidden"/>
+            <Button x:Name="ExitButton" Content="Exit" HorizontalAlignment="Left" Margin="170,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="ExitButton_Click" Visibility="Hidden"/>
         </Grid>
     </Grid>
 </Window>

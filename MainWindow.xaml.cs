@@ -103,6 +103,7 @@ namespace InfiniteModuleEditor
                 TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
                 ExitButton.Visibility = Visibility.Visible;
+                SaveAndExitButton.Visibility = Visibility.Visible;
                 TagOpen = true;
             }
             else
@@ -158,11 +159,29 @@ namespace InfiniteModuleEditor
             TagStream.Close();
             SaveButton.Visibility = Visibility.Hidden;
             ExitButton.Visibility = Visibility.Hidden;
+            SaveAndExitButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
             
+        }
+
+        private void SaveAndExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            byte[] ModifiedTag = ModuleEditor.WriteTag(ModuleFile, TagStream);
+            ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
+            ModuleStream.Write(ModuleEditor.WriteTag(ModuleFile, TagStream), 0, ModifiedTag.Length);
+            //save compressed block from moduleeditor method
+            MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+            TagStream.Close();
+            SaveButton.Visibility = Visibility.Hidden;
+            ExitButton.Visibility = Visibility.Hidden;
+            SaveAndExitButton.Visibility = Visibility.Hidden;
+            TagViewer.Visibility = Visibility.Hidden;
+            TagSearch.Visibility = Visibility.Hidden;
+            TagNameText.Visibility = Visibility.Hidden;
+            TagOpen = false;
         }
 
         private void Close_Module_Click(object sender, RoutedEventArgs e)
@@ -185,7 +204,5 @@ namespace InfiniteModuleEditor
         {
             TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
         }
-
-
     }
 }

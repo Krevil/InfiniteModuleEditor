@@ -672,12 +672,12 @@ namespace InfiniteModuleEditor
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(DataRef.Size)), 0, 4);
                             break;
                         case PluginField.RealBounds:
-                            RealBounds Bounds = (RealBounds)Item.Value;
+                            RealBounds Bounds = new RealBounds { MinBound = Convert.ToSingle((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToSingle((Item.Value as string).Split(' ')[1]) };
                             TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MinBound)), 0, 4);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MaxBound)), 0, 4);
                             break;
                         case PluginField.Vector3D:
-                            RealVector3D Vector = (RealVector3D)Item.Value;
+                            RealVector3D Vector = new RealVector3D { I = Convert.ToSingle((Item.Value as string).Split(' ')[0]), J = Convert.ToSingle((Item.Value as string).Split(' ')[1]), K = Convert.ToSingle((Item.Value as string).Split(' ')[2]) };
                             TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.I)), 0, 4);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.J)), 0, 4);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.K)), 0, 4);
