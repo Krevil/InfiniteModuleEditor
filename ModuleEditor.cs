@@ -510,20 +510,25 @@ namespace InfiniteModuleEditor
             TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
 
             //hacky fix for biped tags and similar to skip over unknown data that is considered part of the tag for some reason
+            int CurrentOffset = (int)TagStream.Position;
+            int TagDataOffset = (int)TagStream.Position;
             byte[] TempBuffer = new byte[4];
             TagStream.Read(TempBuffer, 0, 4);
             while (BitConverter.ToInt32(TempBuffer, 0) != ModuleFile.FileEntry.GlobalTagId)
             {
                 TagStream.Read(TempBuffer, 0, 4);
             }
-            System.Diagnostics.Debug.WriteLine("Global ID Offset: {0}", TagStream.Position);
             TagStream.Seek(-12, SeekOrigin.Current);
+            TagDataOffset = (int)TagStream.Position - TagDataOffset;
+            TagStream.Seek(CurrentOffset, SeekOrigin.Begin);
 
             tag.TagData = new byte[tag.Header.DataSize];
             TagStream.Read(tag.TagData, 0, (int)tag.Header.DataSize);
 
+
             PluginReader pluginReader = new PluginReader();
             string PluginToLoad = "Plugins\\";
+            
             switch (Path.GetExtension(ShortTagName))
             {
                 case ".grapplehookdefinitiontag":
@@ -542,7 +547,7 @@ namespace InfiniteModuleEditor
                     MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName);
                     return null;
             }
-            List<PluginItem> PluginItems = pluginReader.LoadPlugin(PluginToLoad, tag);
+            List<PluginItem> PluginItems = pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset);
 
             foreach (PluginItem Item in PluginItems)
             {
@@ -639,7 +644,7 @@ namespace InfiniteModuleEditor
                         case PluginField.Int32:
                         case PluginField.Flags32:
                         case PluginField.Enum32:
-                            System.Diagnostics.Debug.WriteLine("Writing field {0} with value {1}", Item.Name, Item.Offset);
+                            System.Diagnostics.Debug.WriteLine("Writing field {0} with value {1}", Item.Name, Item.Value);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToUInt32(Item.Value)), 0, 4);
                             break;
                         case PluginField.Int16:

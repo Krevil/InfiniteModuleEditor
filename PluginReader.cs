@@ -12,12 +12,12 @@ namespace InfiniteModuleEditor
 {
     public class PluginReader
     {
-        public void RemoveBlocks(XmlDocument PluginXml, Tag Tag)
+        public void RemoveBlocks(XmlDocument PluginXml, Tag Tag, int Offset)
         {
             PluginXml.Load("tempPlugin.xml");
             bool Removed = false;
             XmlNodeList AllNodes = PluginXml.SelectNodes("//*");
-            int Position = 0;
+            int Position = Offset;
             //create some sortof looping method because this doesn't fucking work
             for (int i = 0; i < AllNodes.Count; i++)
             {
@@ -128,6 +128,7 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_char_integer":
                     case "_field_byte_integer":
+                    case "_field_char_block_index":
                         Position += 1;
                         break;
                     case "_field_point_2d":
@@ -174,22 +175,22 @@ namespace InfiniteModuleEditor
             PluginXml.Save("tempPlugin.xml");
             if (Removed)
             {
-                RemoveBlocks(PluginXml, Tag);
+                RemoveBlocks(PluginXml, Tag, Offset);
             }
         }
 
-        public List<PluginItem> LoadPlugin(string PluginPath, Tag Tag)
+        public List<PluginItem> LoadPlugin(string PluginPath, Tag Tag, int Offset)
         {
             List<PluginItem> PluginItems = new List<PluginItem>();
             XmlDocument PluginXml = new XmlDocument();
             PluginXml.Load(PluginPath);
             PluginXml.Save("tempPlugin.xml");
-            RemoveBlocks(PluginXml, Tag);
+            RemoveBlocks(PluginXml, Tag, Offset);
             
             PluginXml.Load("tempPlugin.xml");
             XmlNodeList AllNodes = PluginXml.SelectNodes("//*");
 
-            int Position = 0;
+            int Position = Offset;
 
             for (int i = 0; i < AllNodes.Count; i++)
             {
@@ -307,6 +308,7 @@ namespace InfiniteModuleEditor
                         break;
                     case "_field_char_integer":
                     case "_field_byte_integer":
+                    case "_field_char_block_index":
                         PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int8, Offset = Position });
                         Position += 1;
                         break;
