@@ -35,6 +35,8 @@ namespace InfiniteModuleEditor
 
         //TODO: UI style improvements, add a header so user knows what module they are editing, parse tag blocks or you won't be able to read anything with them
 
+        //
+
         public MainWindow()
         {
             InitializeComponent();
@@ -102,8 +104,8 @@ namespace InfiniteModuleEditor
                 TagViewer.Visibility = Visibility.Visible;
                 TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
-                ExitButton.Visibility = Visibility.Visible;
-                SaveAndExitButton.Visibility = Visibility.Visible;
+                CloseButton.Visibility = Visibility.Visible;
+                SaveAndCloseButton.Visibility = Visibility.Visible;
                 TagOpen = true;
             }
             else
@@ -147,19 +149,21 @@ namespace InfiniteModuleEditor
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            byte[] ModifiedTag = ModuleEditor.WriteTag(ModuleFile, TagStream);
-            ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
-            ModuleStream.Write(ModuleEditor.WriteTag(ModuleFile, TagStream), 0, ModifiedTag.Length);
+            bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
             //save compressed block from moduleeditor method
-            MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+
+            if (Result)
+                MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+            else
+                MessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             TagStream.Close();
             SaveButton.Visibility = Visibility.Hidden;
-            ExitButton.Visibility = Visibility.Hidden;
-            SaveAndExitButton.Visibility = Visibility.Hidden;
+            CloseButton.Visibility = Visibility.Hidden;
+            SaveAndCloseButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
@@ -167,21 +171,24 @@ namespace InfiniteModuleEditor
             
         }
 
-        private void SaveAndExitButton_Click(object sender, RoutedEventArgs e)
+        private void SaveAndCloseButton_Click(object sender, RoutedEventArgs e)
         {
-            byte[] ModifiedTag = ModuleEditor.WriteTag(ModuleFile, TagStream);
-            ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
-            ModuleStream.Write(ModuleEditor.WriteTag(ModuleFile, TagStream), 0, ModifiedTag.Length);
+            bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
             //save compressed block from moduleeditor method
-            MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
-            TagStream.Close();
-            SaveButton.Visibility = Visibility.Hidden;
-            ExitButton.Visibility = Visibility.Hidden;
-            SaveAndExitButton.Visibility = Visibility.Hidden;
-            TagViewer.Visibility = Visibility.Hidden;
-            TagSearch.Visibility = Visibility.Hidden;
-            TagNameText.Visibility = Visibility.Hidden;
-            TagOpen = false;
+            if (Result)
+            {
+                MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+                TagStream.Close();
+                SaveButton.Visibility = Visibility.Hidden;
+                CloseButton.Visibility = Visibility.Hidden;
+                SaveAndCloseButton.Visibility = Visibility.Hidden;
+                TagViewer.Visibility = Visibility.Hidden;
+                TagSearch.Visibility = Visibility.Hidden;
+                TagNameText.Visibility = Visibility.Hidden;
+                TagOpen = false;
+            }
+            else 
+                MessageBox.Show("Failed to compress tag to the right size");
         }
 
         private void Close_Module_Click(object sender, RoutedEventArgs e)
@@ -196,7 +203,7 @@ namespace InfiniteModuleEditor
                     TagListFilter.Visibility = Visibility.Hidden;
                 }
                 else
-                    MessageBox.Show("You have a tag open - close it first before closing the module.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

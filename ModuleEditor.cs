@@ -85,7 +85,7 @@ namespace InfiniteModuleEditor
                     continue;
                 }
                 ModuleFileEntry moduleItemNext = new ModuleFileEntry();
-                string TagName = "";
+                string TagName;
                 if (i + 88 != FileEntriesSize)
                 {
                     moduleItemNext.NameOffset = BitConverter.ToInt32(ModuleFileEntries, i + 88 + 64);
@@ -478,12 +478,21 @@ namespace InfiniteModuleEditor
                 TagReferenceHandle.Free();
             }
 
-            
+            /*
             foreach (DataBlock DB in tag.DataBlockList)
             {
                 tag.DataBlockInfo.Add((int)DB.Offset, (int)DB.Size);
                 //System.Diagnostics.Debug.WriteLine("Data block at offset {0} has a size of {1} and is of type {2}", DB.Offset, DB.Size, DB.Section);
             }
+
+            
+            foreach (TagStruct TS in tag.TagStructList)
+            {
+                if (TS.Type == 1 && TS.TargetIndex != -1)
+                    System.Diagnostics.Debug.WriteLine("Data block index: {0} Field Offset: {1} Target Index {2}", TS.FieldBlock, TS.FieldOffset, TS.TargetIndex); //data block means 
+            }
+            */
+            
 
             //Not sure about this stuff, might not be in every tag?
             /*
@@ -530,6 +539,7 @@ namespace InfiniteModuleEditor
             string PluginToLoad = "Plugins\\";
             
             bool LoadXML = true;
+
             switch (Path.GetExtension(ShortTagName))
             {
                 case ".grapplehookdefinitiontag":
@@ -544,6 +554,9 @@ namespace InfiniteModuleEditor
                 case ".projectile":
                     PluginToLoad += "projprojectile.xml";
                     break;
+                case ".weapon":
+                    PluginToLoad += "weapweapon.xml";
+                    break;
                 default:
                     MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName + "\nUsing generic fields to display tag");
                     LoadXML = false;
@@ -551,6 +564,23 @@ namespace InfiniteModuleEditor
             }
             List<PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
+            GetTagValues(PluginItems, tag);
+
+            tag.TagValues = PluginItems;
+
+            if (LoadXML)
+            {
+                PluginItems = pluginReader.GenerateBlockValuesXML(PluginToLoad, tag, PluginItems, TagDataOffset);
+                GetTagValues(PluginItems, tag);
+            }
+
+            //WriteTagInfo(FilePath, tag, PluginItems);
+            tag.TagValues = PluginItems;
+            return tag;
+        }
+
+        public static void GetTagValues(List<PluginItem> PluginItems, Tag tag)
+        {
             foreach (PluginItem Item in PluginItems)
             {
                 switch (Item.FieldType)
@@ -587,6 +617,13 @@ namespace InfiniteModuleEditor
                             Size = BitConverter.ToUInt32(tag.TagData, Item.Offset + 20)
                         };
                         break;
+                    case PluginField.ShortBounds:
+                        Item.Value = new ShortBounds
+                        {
+                            MinBound = BitConverter.ToInt16(tag.TagData, Item.Offset),
+                            MaxBound = BitConverter.ToInt16(tag.TagData, Item.Offset + 2)
+                        };
+                        break;
                     case PluginField.RealBounds:
                         Item.Value = new RealBounds
                         {
@@ -620,18 +657,18 @@ namespace InfiniteModuleEditor
                     case PluginField.Enum32:
                         Item.Value = BitConverter.ToUInt32(tag.TagData, Item.Offset);
                         break;
+                    case PluginField.TagBlock:
+                        Item.Value = BitConverter.ToUInt32(tag.TagData, Item.Offset + 16);
+                        break;
                     default:
                         break;
                 }
             }
-
-            //WriteTagInfo(FilePath, tag, PluginItems);
-            tag.TagValues = PluginItems;
-            return tag;
         }
 
-        public static byte[] WriteTag(ModuleFile ModuleFile, MemoryStream TagStream)
+        public static bool WriteTag(ModuleFile ModuleFile, MemoryStream TagStream, FileStream ModuleStream)
         {
+            bool WriteTagHeader = false;
             foreach (PluginItem Item in ModuleFile.Tag.TagValues)
             {
                 if (Item.GetModified())
@@ -646,7 +683,6 @@ namespace InfiniteModuleEditor
                         case PluginField.Int32:
                         case PluginField.Flags32:
                         case PluginField.Enum32:
-                            System.Diagnostics.Debug.WriteLine("Writing field {0} with value {1}", Item.Name, Item.Value);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToUInt32(Item.Value)), 0, 4);
                             break;
                         case PluginField.Int16:
@@ -660,21 +696,35 @@ namespace InfiniteModuleEditor
                             TagStream.WriteByte(Convert.ToByte(Item.Value));
                             break;
                         case PluginField.TagReference:
-                            TagReference TagRef = (TagReference)Item.Value;
+                            //needs testing
+                            WriteTagHeader = true;
+                            TagReference TagRef = new TagReference { GlobalID = Convert.ToInt32((Item.Value as string).Split(' ')[0]), AssetID = Convert.ToInt64((Item.Value as string).Split(' ')[1]), GroupTag = Convert.ToInt32((Item.Value as string).Split(' ')[2]), TypeInfo = 0, LocalHandle = 0 };
                             TagStream.Seek(8, SeekOrigin.Current);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GlobalID)), 0, 4);
-                            TagStream.Seek(8, SeekOrigin.Current);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
+                            //tags don't seem to care what's in the data so we have to write the header
+                            TagStream.Seek((ModuleFile.Tag.TagReferenceFixupList.ToList().Find(x => x.FieldOffset == Item.Offset + ModuleFile.Tag.Header.HeaderSize).DepdencyIndex * 24) + 80, SeekOrigin.Begin);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
+                            TagStream.Seek(4, SeekOrigin.Current);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GlobalID)), 0, 4);
+                            //and that doesn't seem to work either ?????????????????????????
                             break;
                         case PluginField.DataReference:
                             DataReferenceField DataRef = (DataReferenceField)Item.Value;
                             TagStream.Seek(20, SeekOrigin.Current);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(DataRef.Size)), 0, 4);
                             break;
+                        case PluginField.ShortBounds:
+                            ShortBounds Int16Bounds = new ShortBounds { MinBound = Convert.ToInt16((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToInt16((Item.Value as string).Split(' ')[1]) };
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Int16Bounds.MinBound)), 0, 2);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Int16Bounds.MaxBound)), 0, 2);
+                            break;
                         case PluginField.RealBounds:
-                            RealBounds Bounds = new RealBounds { MinBound = Convert.ToSingle((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToSingle((Item.Value as string).Split(' ')[1]) };
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MinBound)), 0, 4);
-                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Bounds.MaxBound)), 0, 4);
+                            RealBounds FloatBounds = new RealBounds { MinBound = Convert.ToSingle((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToSingle((Item.Value as string).Split(' ')[1]) };
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(FloatBounds.MinBound)), 0, 4);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(FloatBounds.MaxBound)), 0, 4);
                             break;
                         case PluginField.Vector3D:
                             RealVector3D Vector = new RealVector3D { I = Convert.ToSingle((Item.Value as string).Split(' ')[0]), J = Convert.ToSingle((Item.Value as string).Split(' ')[1]), K = Convert.ToSingle((Item.Value as string).Split(' ')[2]) };
@@ -688,17 +738,36 @@ namespace InfiniteModuleEditor
                     }
                 }
             }
+            
+            if (WriteTagHeader)
+            {
+                byte[] ModifiedHeader = new byte[ModuleFile.Tag.Header.HeaderSize];
+                TagStream.Seek(0, SeekOrigin.Begin);
+                TagStream.Read(ModifiedHeader, 0, (int)ModuleFile.Tag.Header.HeaderSize);
+
+                byte[] CompressedModifiedHeader = Oodle.Compress(ModifiedHeader, ModifiedHeader.Length, OodleFormat.Kraken, OodleCompressionLevel.Optimal5); //Set to optimal because a smaller file can be put back in but a bigger one is no bueno
+                if (CompressedModifiedHeader.Length <= ModuleFile.Blocks[0].BlockData.CompressedSize)
+                {
+                    ModuleStream.Seek(ModuleFile.Blocks[0].ModuleOffset, SeekOrigin.Begin);
+                    ModuleStream.Write(CompressedModifiedHeader, 0, CompressedModifiedHeader.Length);
+                }
+                else return false;
+            }         
+
             byte[] ModifiedTag = new byte[ModuleFile.Tag.Header.DataSize];
             TagStream.Seek(ModuleFile.Tag.Header.HeaderSize, SeekOrigin.Begin);
             TagStream.Read(ModifiedTag, 0, (int)ModuleFile.Tag.Header.DataSize);
 
             byte[] CompressedModifiedTag = Oodle.Compress(ModifiedTag, ModifiedTag.Length, OodleFormat.Kraken, OodleCompressionLevel.Optimal5); //Set to optimal because a smaller file can be put back in but a bigger one is no bueno
-            
+
             if (CompressedModifiedTag.Length <= ModuleFile.Blocks[1].BlockData.CompressedSize)
             {
-                return CompressedModifiedTag;
+                ModuleStream.Seek(ModuleFile.Blocks[1].ModuleOffset, SeekOrigin.Begin);
+                ModuleStream.Write(CompressedModifiedTag, 0, CompressedModifiedTag.Length);
             }
-            throw new Exception("Oodle compression failed: Minimum size required: " + ModuleFile.Blocks[1].BlockData.CompressedSize + " Result size: " + CompressedModifiedTag.Length);
+            else return false;
+
+            return true;
         }
 
         public static void WriteTagInfo(string FilePath, Tag tag, List<PluginItem> PluginItems)

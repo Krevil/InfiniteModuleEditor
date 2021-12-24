@@ -23,7 +23,21 @@ namespace InfiniteModuleEditor
         public List<PluginItem> TagValues { get; set; }
         public string Name { get; set; }
         public string ShortName { get; set; }
+        public int StringTableOffset { get; set; }
         public Dictionary<int, int> DataBlockInfo = new Dictionary<int, int>();
+
+        public int TagBlockAtOffset(int Offset, int DataSection)
+        {
+            foreach (TagStruct TS in TagStructList)
+            {
+                if (TS.FieldOffset == Offset && TS.FieldBlock == DataSection)
+                {
+                    return Convert.ToInt32(TagValues.Find(x => x.Offset == Offset && x.FieldType == PluginField.TagBlock).Value); //block count
+                }
+            }
+
+            return 0;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 80)]
@@ -179,7 +193,7 @@ namespace InfiniteModuleEditor
         public int FieldBlock;
 
         [FieldOffset(4)]
-        public uint GlobalID;
+        public uint FieldOffset;
 
         [FieldOffset(8)]
         public uint NameOffset;
@@ -254,13 +268,13 @@ namespace InfiniteModuleEditor
         public ulong TypeInfo;
 
         [FieldOffset(16)]
-        public int UnknownProperty;
+        public int Count;
 
         [FieldOffset(20)]
-        public int UnknownProperty2;
+        public int UnknownProperty;
 
         [FieldOffset(24)]
-        public int Count;
+        public int UnknownProperty2;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 28)]
@@ -283,7 +297,7 @@ namespace InfiniteModuleEditor
 
         public override string ToString()
         {
-            return GlobalID + " " + Utilities.GetClassID(GroupTag);
+            return GlobalID + " " + AssetID + " " + GroupTag;
         }
     }
 
@@ -351,6 +365,21 @@ namespace InfiniteModuleEditor
         public override string ToString()
         {
             return I + " " + J + " " + K;
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 4)]
+    public struct ShortBounds
+    {
+        [FieldOffset(0)]
+        public short MinBound;
+
+        [FieldOffset(2)]
+        public short MaxBound;
+
+        public override string ToString()
+        {
+            return MinBound + " " + MaxBound;
         }
     }
 
