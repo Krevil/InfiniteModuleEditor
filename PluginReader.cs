@@ -80,7 +80,7 @@ namespace InfiniteModuleEditor
         /// <param name="Position">The position the stream should be at when reading the tag</param>
         /// <param name="OriginPosition">The original position of the stream (where this should subtract when parsing block positions)</param>
         /// <returns>The new position that the stream should be at</returns>
-        public int AddPluginItems(XmlNode Node, List<PluginItem> PluginItems, Tag Tag, int Position, int OriginPosition)
+        public int AddPluginItems(XmlNode Node, List<PluginItem> PluginItems, int Position)
         {
             int OldPosition = Position;
             switch (Node.Name.ToLower()) //get item names for enums, flags
@@ -317,7 +317,7 @@ namespace InfiniteModuleEditor
 
             for (int i = 0; i < AllNodes.Count; i++)
             {
-                Position = AddPluginItems(AllNodes[i], PluginItems, Tag, Position, Offset);
+                Position = AddPluginItems(AllNodes[i], PluginItems, Position);
             }
             
 
