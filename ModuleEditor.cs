@@ -178,74 +178,59 @@ namespace InfiniteModuleEditor
             tag.Header = (FileHeader)Marshal.PtrToStructure(HeaderHandle.AddrOfPinnedObject(), typeof(FileHeader)); //No idea how this magic bytes to structure stuff works, I just got this from github
             HeaderHandle.Free();
 
-            tag.TagDependencyList = new TagDependency[tag.Header.DependencyCount];
-            tag.DataBlockList = new DataBlock[tag.Header.DataBlockCount];
-            tag.TagStructList = new TagStruct[tag.Header.TagStructCount];
-            tag.DataReferenceList = new DataReference[tag.Header.DataReferenceCount];
-            tag.TagReferenceFixupList = new TagReferenceFixup[tag.Header.TagReferenceCount];
-            //tag.StringIDList = new StringID[tag.Header.StringIDCount]; //Not sure about the StringIDCount. Needs investigation
+            tag.TagDependencyArray = new TagDependency[tag.Header.DependencyCount];
+            tag.DataBlockArray = new DataBlock[tag.Header.DataBlockCount];
+            tag.TagStructArray = new TagStruct[tag.Header.TagStructCount];
+            tag.DataReferenceArray = new DataReference[tag.Header.DataReferenceCount];
+            tag.TagReferenceFixupArray = new TagReferenceFixup[tag.Header.TagReferenceCount];
+            //tag.StringIDArray = new StringID[tag.Header.StringIDCount]; //Not sure about the StringIDCount. Needs investigation
             tag.StringTable = new byte[tag.Header.StringTableSize];
 
             for (long l = 0; l < tag.Header.DependencyCount; l++) //For each tag dependency, fill in its values
             {
-                byte[] TagDependencyBytes = new byte[Marshal.SizeOf(tag.TagDependencyList[l])];
-                TagStream.Read(TagDependencyBytes, 0, Marshal.SizeOf(tag.TagDependencyList[l]));
+                byte[] TagDependencyBytes = new byte[Marshal.SizeOf(tag.TagDependencyArray[l])];
+                TagStream.Read(TagDependencyBytes, 0, Marshal.SizeOf(tag.TagDependencyArray[l]));
                 GCHandle TagDependencyHandle = GCHandle.Alloc(TagDependencyBytes, GCHandleType.Pinned);
-                tag.TagDependencyList[l] = (TagDependency)Marshal.PtrToStructure(TagDependencyHandle.AddrOfPinnedObject(), typeof(TagDependency));
+                tag.TagDependencyArray[l] = (TagDependency)Marshal.PtrToStructure(TagDependencyHandle.AddrOfPinnedObject(), typeof(TagDependency));
                 TagDependencyHandle.Free();
             }
 
             for (long l = 0; l < tag.Header.DataBlockCount; l++)
             {
-                byte[] DataBlockBytes = new byte[Marshal.SizeOf(tag.DataBlockList[l])];
-                TagStream.Read(DataBlockBytes, 0, Marshal.SizeOf(tag.DataBlockList[l]));
+                byte[] DataBlockBytes = new byte[Marshal.SizeOf(tag.DataBlockArray[l])];
+                TagStream.Read(DataBlockBytes, 0, Marshal.SizeOf(tag.DataBlockArray[l]));
                 GCHandle DataBlockHandle = GCHandle.Alloc(DataBlockBytes, GCHandleType.Pinned);
-                tag.DataBlockList[l] = (DataBlock)Marshal.PtrToStructure(DataBlockHandle.AddrOfPinnedObject(), typeof(DataBlock));
+                tag.DataBlockArray[l] = (DataBlock)Marshal.PtrToStructure(DataBlockHandle.AddrOfPinnedObject(), typeof(DataBlock));
                 DataBlockHandle.Free();
             }
 
             for (long l = 0; l < tag.Header.TagStructCount; l++)
             {
-                byte[] TagStructBytes = new byte[Marshal.SizeOf(tag.TagStructList[l])];
-                TagStream.Read(TagStructBytes, 0, Marshal.SizeOf(tag.TagStructList[l]));
+                byte[] TagStructBytes = new byte[Marshal.SizeOf(tag.TagStructArray[l])];
+                TagStream.Read(TagStructBytes, 0, Marshal.SizeOf(tag.TagStructArray[l]));
                 GCHandle TagStructHandle = GCHandle.Alloc(TagStructBytes, GCHandleType.Pinned);
-                tag.TagStructList[l] = (TagStruct)Marshal.PtrToStructure(TagStructHandle.AddrOfPinnedObject(), typeof(TagStruct));
+                tag.TagStructArray[l] = (TagStruct)Marshal.PtrToStructure(TagStructHandle.AddrOfPinnedObject(), typeof(TagStruct));
                 TagStructHandle.Free();
             }
 
+
             for (long l = 0; l < tag.Header.DataReferenceCount; l++)
             {
-                byte[] DataReferenceBytes = new byte[Marshal.SizeOf(tag.DataReferenceList[l])];
-                TagStream.Read(DataReferenceBytes, 0, Marshal.SizeOf(tag.DataReferenceList[l]));
+                byte[] DataReferenceBytes = new byte[Marshal.SizeOf(tag.DataReferenceArray[l])];
+                TagStream.Read(DataReferenceBytes, 0, Marshal.SizeOf(tag.DataReferenceArray[l]));
                 GCHandle DataReferenceHandle = GCHandle.Alloc(DataReferenceBytes, GCHandleType.Pinned);
-                tag.DataReferenceList[l] = (DataReference)Marshal.PtrToStructure(DataReferenceHandle.AddrOfPinnedObject(), typeof(DataReference));
+                tag.DataReferenceArray[l] = (DataReference)Marshal.PtrToStructure(DataReferenceHandle.AddrOfPinnedObject(), typeof(DataReference));
                 DataReferenceHandle.Free();
             }
 
             for (long l = 0; l < tag.Header.TagReferenceCount; l++)
             {
-                byte[] TagReferenceBytes = new byte[Marshal.SizeOf(tag.TagReferenceFixupList[l])];
-                TagStream.Read(TagReferenceBytes, 0, Marshal.SizeOf(tag.TagReferenceFixupList[l]));
+                byte[] TagReferenceBytes = new byte[Marshal.SizeOf(tag.TagReferenceFixupArray[l])];
+                TagStream.Read(TagReferenceBytes, 0, Marshal.SizeOf(tag.TagReferenceFixupArray[l]));
                 GCHandle TagReferenceHandle = GCHandle.Alloc(TagReferenceBytes, GCHandleType.Pinned);
-                tag.TagReferenceFixupList[l] = (TagReferenceFixup)Marshal.PtrToStructure(TagReferenceHandle.AddrOfPinnedObject(), typeof(TagReferenceFixup));
+                tag.TagReferenceFixupArray[l] = (TagReferenceFixup)Marshal.PtrToStructure(TagReferenceHandle.AddrOfPinnedObject(), typeof(TagReferenceFixup));
                 TagReferenceHandle.Free();
             }
-
-            /*
-            foreach (DataBlock DB in tag.DataBlockList)
-            {
-                tag.DataBlockInfo.Add((int)DB.Offset, (int)DB.Size);
-                //System.Diagnostics.Debug.WriteLine("Data block at offset {0} has a size of {1} and is of type {2}", DB.Offset, DB.Size, DB.Section);
-            }
-
-            
-            foreach (TagStruct TS in tag.TagStructList)
-            {
-                if (TS.Type == 1 && TS.TargetIndex != -1)
-                    System.Diagnostics.Debug.WriteLine("Data block index: {0} Field Offset: {1} Target Index {2}", TS.FieldBlock, TS.FieldOffset, TS.TargetIndex); //data block means 
-            }
-            */
-            
 
             //Not sure about this stuff, might not be in every tag?
             /*
@@ -257,13 +242,13 @@ namespace InfiniteModuleEditor
                 tag.ZoneSetInfoHeader = (ZoneSetInformationHeader)Marshal.PtrToStructure(ZoneSetHandle.AddrOfPinnedObject(), typeof(ZoneSetInformationHeader));
                 ZoneSetHandle.Free();
 
-                tag.ZoneSetEntryList = new ZoneSetEntry[tag.ZoneSetInfoHeader.ZoneSetCount];
+                tag.ZoneSetEntryArray = new ZoneSetEntry[tag.ZoneSetInfoHeader.ZoneSetCount];
                 long ZoneSetTagCount = 0;
-                foreach (ZoneSetEntry zse in tag.ZoneSetEntryList)
+                foreach (ZoneSetEntry zse in tag.ZoneSetEntryArray)
                 {
                     ZoneSetTagCount += zse.TagCount;
                 }
-                tag.ZoneSetTagList = new ZoneSetTag[ZoneSetTagCount];
+                tag.ZoneSetTagArray = new ZoneSetTag[ZoneSetTagCount];
             }
             */
 
@@ -290,51 +275,28 @@ namespace InfiniteModuleEditor
             tag.MainStructSize = 0;
             tag.TotalTagBlockDataSize = 0;
 
-            foreach (DataBlock DB in tag.DataBlockList)
+            for (int i = 0; i < tag.DataBlockArray.Length; i++)
             {
-                tag.TotalTagBlockDataSize += (int)DB.Size;
+                tag.TotalTagBlockDataSize += (int)tag.DataBlockArray[i].Size;
             }
 
             tag.MainStructSize = (int)(tag.Header.DataSize - tag.TotalTagBlockDataSize);
 
-            foreach (TagStruct TS in tag.TagStructList)
-            {
-                if (TS.TargetIndex != -1 && BitConverter.ToInt32(tag.TagData, (int)TS.FieldOffset + 16) != 0)
-                {
-                    TagBlockInfo TBI = new TagBlockInfo
-                    {
-                        ReferenceOffset = (int)TS.FieldOffset,
-                        Count = BitConverter.ToInt32(tag.TagData, (int)TS.FieldOffset + 16),
-                        ReferenceDataBlockIndex = TS.FieldBlock,
-                        DataBlockIndex = TS.TargetIndex,
-                        DataOffset = (int)tag.DataBlockList[TS.TargetIndex].Offset,
-                        TagOffset = (int)tag.DataBlockList[TS.TargetIndex].Offset + ((tag.DataBlockList[TS.TargetIndex].Section == 1) ? 0 : tag.MainStructSize),
-                        Size = (int)tag.DataBlockList[TS.TargetIndex].Size
-                    };
-                    tag.TagBlockInfos.Add(TBI);
-                    System.Diagnostics.Debug.WriteLine("Data block at {0} has a size of {1}, with {2} blocks for a size of {3} for each block, its parent datablock is {4} and the reference to it is at offset {5}", 
-                        TBI.TagOffset, TBI.Size, TBI.Count, TBI.Size / TBI.Count, TBI.ReferenceDataBlockIndex, TBI.ReferenceOffset);
-                }
-            }
-
             PluginReader pluginReader = new PluginReader();
+            bool LoadXML = true;
             string PluginToLoad = "Plugins\\" + Utilities.GetClassID(ModuleFile.FileEntry.ClassId) + Path.GetExtension(ShortTagName).Substring(1) + ".xml";
-            List <PluginItem> PluginItems = File.Exists(PluginToLoad) ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
+            if (!File.Exists(PluginToLoad))
+            {
+                if (File.Exists("Plugins\\" + Utilities.GetClassID(ModuleFile.FileEntry.ClassId) + ".xml"))
+                    PluginToLoad = "Plugins\\" + Utilities.GetClassID(ModuleFile.FileEntry.ClassId) + ".xml";
+                else LoadXML = false;
+            }
+            List <PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
             GetTagValues(PluginItems, tag);
 
             tag.TagValues = PluginItems;
 
-            /*
-            if (LoadXML)
-            {
-                PluginItems = pluginReader.GenerateBlockValuesXML(PluginToLoad, tag, PluginItems, TagDataOffset);
-                GetTagValues(PluginItems, tag);
-            }
-            */
-
-            //WriteTagInfo(FilePath, tag, PluginItems);
-            tag.TagValues = PluginItems;
             return tag;
         }
 
@@ -463,7 +425,7 @@ namespace InfiniteModuleEditor
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
                             //tags don't seem to care what's in the data so we have to write the header
-                            TagStream.Seek((ModuleFile.Tag.TagReferenceFixupList.ToList().Find(x => x.FieldOffset == Item.Offset + ModuleFile.Tag.Header.HeaderSize).DepdencyIndex * 24) + 80, SeekOrigin.Begin);
+                            TagStream.Seek((ModuleFile.Tag.TagReferenceFixupArray.ToList().Find(x => x.FieldOffset == Item.Offset + ModuleFile.Tag.Header.HeaderSize).DepdencyIndex * 24) + 80, SeekOrigin.Begin);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
                             TagStream.Seek(4, SeekOrigin.Current);
                             TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
@@ -544,19 +506,19 @@ namespace InfiniteModuleEditor
             TextOutput.WriteLine();
             TextOutput.WriteLine("Tag Depdendencies:");
             TextOutput.WriteLine();
-            Utilities.WriteObjectInfo(TextOutput, tag.TagDependencyList, "Tag Dependency");
+            Utilities.WriteObjectInfo(TextOutput, tag.TagDependencyArray, "Tag Dependency");
             TextOutput.WriteLine("Data Blocks:");
             TextOutput.WriteLine();
-            Utilities.WriteObjectInfo(TextOutput, tag.DataBlockList, "Data Block");
+            Utilities.WriteObjectInfo(TextOutput, tag.DataBlockArray, "Data Block");
             TextOutput.WriteLine("Tag Structs:");
             TextOutput.WriteLine();
-            Utilities.WriteObjectInfo(TextOutput, tag.TagStructList, "Tag Struct");
+            Utilities.WriteObjectInfo(TextOutput, tag.TagStructArray, "Tag Struct");
             TextOutput.WriteLine("Data References:");
             TextOutput.WriteLine();
-            Utilities.WriteObjectInfo(TextOutput, tag.DataReferenceList, "Data Reference");
+            Utilities.WriteObjectInfo(TextOutput, tag.DataReferenceArray, "Data Reference");
             TextOutput.WriteLine("Tag Reference Fixups:");
             TextOutput.WriteLine();
-            Utilities.WriteObjectInfo(TextOutput, tag.TagReferenceFixupList, "Tag Reference Fixup");
+            Utilities.WriteObjectInfo(TextOutput, tag.TagReferenceFixupArray, "Tag Reference Fixup");
             TextOutput.WriteLine();
             TextOutput.WriteLine("Tag Data:");
             TextOutput.WriteLine();

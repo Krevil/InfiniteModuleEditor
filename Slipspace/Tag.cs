@@ -8,16 +8,16 @@ namespace InfiniteModuleEditor
     public class Tag
     {
         public FileHeader Header { get; set; }
-        public TagDependency[] TagDependencyList { get; set; }
-        public DataBlock[] DataBlockList { get; set; }
-        public TagStruct[] TagStructList { get; set; }
-        public DataReference[] DataReferenceList { get; set; }
-        public TagReferenceFixup[] TagReferenceFixupList { get; set; }
-        public StringID[] StringIDList { get; set; } //Not a thing in Infinite?
+        public TagDependency[] TagDependencyArray { get; set; }
+        public DataBlock[] DataBlockArray { get; set; }
+        public TagStruct[] TagStructArray { get; set; }
+        public DataReference[] DataReferenceArray { get; set; }
+        public TagReferenceFixup[] TagReferenceFixupArray { get; set; }
+        public StringID[] StringIDArray { get; set; } //Not a thing in Infinite?
         public byte[] StringTable { get; set; }
         public ZoneSetInformationHeader ZoneSetInfoHeader { get; set; }
-        public ZoneSetEntry[] ZoneSetEntryList { get; set; }
-        public ZoneSetTag[] ZoneSetTagList { get; set; }
+        public ZoneSetEntry[] ZoneSetEntryArray { get; set; }
+        public ZoneSetTag[] ZoneSetTagArray { get; set; }
         public byte[] TagData { get; set; }
         public byte[] ResourceData { get; set; }
         public List<PluginItem> TagValues { get; set; }
@@ -26,32 +26,6 @@ namespace InfiniteModuleEditor
         public int MainStructSize { get; set; }
         public int TotalTagBlockDataSize { get; set; }
         public int StringTableOffset { get; set; }
-        public Dictionary<int, int> DataBlockInfo = new Dictionary<int, int>();
-        public List<TagBlockInfo> TagBlockInfos = new List<TagBlockInfo>();
-
-        public int TagBlockAtOffset(int Offset, int DataSection)
-        {
-            foreach (TagStruct TS in TagStructList)
-            {
-                if (TS.FieldOffset == Offset && TS.FieldBlock == DataSection)
-                {
-                    return TagData[Offset + 16];//Convert.ToInt32(TagValues.Find(x => x.Offset == Offset && x.FieldType == PluginField.TagBlock).Value); //block count
-                }
-            }
-
-            return 0;
-        }
-    }
-
-    public class TagBlockInfo
-    {
-        public int ReferenceOffset;
-        public int DataOffset;
-        public int TagOffset;
-        public int ReferenceDataBlockIndex;
-        public int DataBlockIndex;
-        public int Count ;
-        public int Size;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 80)]
