@@ -96,7 +96,6 @@ namespace InfiniteModuleEditor
                     break;
                 case "_field_block_64":
                 case "_field_block_v2":
-
                     Position = AdvancePosition(Node, Position, 20, true);
                     if (OldPosition != Position)
                         PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = OldPosition });
@@ -318,6 +317,25 @@ namespace InfiniteModuleEditor
             for (int i = 0; i < AllNodes.Count; i++)
             {
                 Position = AddPluginItems(AllNodes[i], PluginItems, Position);
+            }
+
+
+            for (int y = 0; y < PluginItems.Count; y++)
+            {
+                if (PluginItems[y].FieldType == PluginField.TagBlock)
+                {
+                    int BlockCount = BitConverter.ToInt32(Tag.TagData, PluginItems[y].Offset + 16);
+                    if (BlockCount > 0)
+                    {
+                        //System.Diagnostics.Debug.WriteLine("PI offset {0}", PI.Offset);
+                        TagStruct TS = Tag.TagStructArray.First(x => x.FieldOffset == PluginItems[y].Offset);
+                        DataBlock DB = Tag.DataBlockArray[TS.TargetIndex];
+                        for (int i = 0; i < DB.Size; i += 4)
+                        {
+                            PluginItems.Add(new PluginItem { Name = "Unknown Field " + i, FieldType = PluginField.Int32, Offset = Offset + (int)DB.Offset + i});
+                        }
+                    }
+                }
             }
             
 
