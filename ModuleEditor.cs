@@ -156,255 +156,8 @@ namespace InfiniteModuleEditor
                     byte[] DecompressedFile = Oodle.Decompress(CompressedFile, (int)moduleFile.Value.FileEntry.TotalCompressedSize, (int)moduleFile.Value.FileEntry.TotalUncompressedSize);
                     outputStream.Write(DecompressedFile, 0, DecompressedFile.Length);
                 }
-                //outputStream.Close(); //For when it was a file
+
                 return outputStream;
-
-                #region Console App Tag Editing
-                
-                /*
-                FileStream TagStream = new FileStream(ShortTagName, FileMode.Open);
-
-                Console.WriteLine("Type an offset and a new value to edit the tag\nWhen finished editing, type Done and the tag will be saved and added back to the file\nRefer to the generated fileinfo.txt for tag info");
-                bool Editing = true;
-                while (Editing)
-                {
-                    Console.Write("Offset: ");
-                    int OffsetToEdit;
-                    string Input = Console.ReadLine();
-                    if (Input.ToLower() == "done")
-                    {
-                        Editing = false;
-                        continue;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            OffsetToEdit = int.Parse(Input);
-                        }
-                        catch
-                        {
-                            Console.WriteLine("Couldn't parse offset. Make sure you are typing an integer value matching one of the offsets in the generated fileinfo.txt");
-                            continue;
-                        }
-                    }
-                    Console.Write("New value: ");
-                    string NewValue = Console.ReadLine();
-                    if (NewValue.ToLower() == "done")
-                    {
-                        Editing = false;
-                        continue;
-                    }
-                    else
-                    {
-                        if (tag.TagValues.Exists(x => x.Offset == OffsetToEdit))
-                        {
-                            PluginItem TagItem = tag.TagValues.Find(x => x.Offset == OffsetToEdit);
-                            switch (TagItem.FieldType)
-                            {
-                                case PluginField.Real:
-                                    try
-                                    {
-                                        TagItem.Value = float.Parse(NewValue);
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.StringID:
-                                case PluginField.Int32:
-                                case PluginField.Flags32:
-                                case PluginField.Enum32:
-                                    try
-                                    {
-                                        TagItem.Value = uint.Parse(NewValue);
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.Int16:
-                                case PluginField.Flags16:
-                                case PluginField.Enum16:
-                                    try
-                                    {
-                                        TagItem.Value = ushort.Parse(NewValue);
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.Enum8:
-                                case PluginField.Int8:
-                                case PluginField.Flags8:
-                                    try
-                                    {
-                                        TagItem.Value = byte.Parse(NewValue);
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.TagReference:
-                                    Console.WriteLine("For a tag reference, type the Global ID of the tag you want and its class ID, ie effe or bipd");
-                                    Console.Write("Global ID: ");
-                                    string TempGlobalID = Console.ReadLine();
-                                    Console.Write("Class ID: ");
-                                    string TempClassID = Console.ReadLine();
-                                    try
-                                    {
-                                        TagReference TagRef = (TagReference)TagItem.Value;
-                                        TagRef.GlobalID = int.Parse(TempGlobalID);
-                                        byte[] ClassID = new byte[4];
-                                        int Pos = 3;
-                                        foreach (char c in TempClassID)
-                                        {
-                                            ClassID[Pos] = (byte)c;
-                                            Pos--;
-                                        }
-                                        TagRef.GroupTag = BitConverter.ToInt32(ClassID, 0);
-                                        TagItem.Value = TagRef;
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.DataReference:
-                                    Console.WriteLine("Data References can't be edited right now, sorry");
-                                    continue;
-                                case PluginField.RealBounds:
-                                    try
-                                    {
-                                        Console.WriteLine("For a real bounds, you also need a max value");
-                                        Console.Write("Max value: ");
-                                        string MaxValue = Console.ReadLine();
-                                        RealBounds Bounds = new RealBounds
-                                        {
-                                            MinBound = float.Parse(NewValue),
-                                            MaxBound = float.Parse(MaxValue)
-                                        };
-                                        TagItem.Value = Bounds;
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                case PluginField.Vector3D:
-                                    try
-                                    {
-                                        Console.WriteLine("For a vector you also need a value for J and K");
-                                        Console.Write("J: ");
-                                        string JValue = Console.ReadLine();
-                                        Console.Write("K: ");
-                                        string KValue = Console.ReadLine();
-                                        RealVector3D Vector = new RealVector3D
-                                        {
-                                            I = float.Parse(NewValue),
-                                            J = float.Parse(JValue),
-                                            K = float.Parse(KValue)
-                                        };
-                                        TagItem.Value = Vector;
-                                    }
-                                    catch
-                                    {
-                                        Console.WriteLine("{0} is the wrong type of value for field {1} - it requires a {2}", NewValue, TagItem.Name, TagItem.FieldType);
-                                        continue;
-                                    }
-                                    break;
-                                default:
-                                    Console.WriteLine("Unrecognized field type {0} in Item {1} at offset {2}", TagItem.FieldType, TagItem.Name, TagItem.Offset);
-                                    break;
-                            }
-                            tag.TagValues.Find(x => x.Offset == OffsetToEdit).Value = TagItem.Value;
-                            tag.TagValues.Find(x => x.Offset == OffsetToEdit).Modified = true;
-                            Console.WriteLine("{0} at offset {1} now has a value of {2}", TagItem.Name, TagItem.Offset, TagItem.Value);
-                        }
-                    }
-                    foreach (PluginItem Item in tag.TagValues)
-                    {
-                        if (Item.Modified)
-                        {
-                            TagStream.Seek(Item.Offset + tag.Header.HeaderSize, SeekOrigin.Begin);
-                            switch (Item.FieldType)
-                            {
-                                case PluginField.Real:
-                                    TagStream.Write(BitConverter.GetBytes((float)Item.Value), 0, 4);
-                                    break;
-                                case PluginField.StringID:
-                                case PluginField.Int32:
-                                case PluginField.Flags32:
-                                case PluginField.Enum32:
-                                    TagStream.Write(BitConverter.GetBytes((uint)Item.Value), 0, 4);
-                                    break;
-                                case PluginField.Int16:
-                                case PluginField.Flags16:
-                                case PluginField.Enum16:
-                                    TagStream.Write(BitConverter.GetBytes((ushort)Item.Value), 0, 2);
-                                    break;
-                                case PluginField.Enum8:
-                                case PluginField.Int8:
-                                case PluginField.Flags8:
-                                    TagStream.WriteByte((byte)Item.Value);
-                                    break;
-                                case PluginField.TagReference:
-                                    TagReference TagRef = (TagReference)Item.Value;
-                                    TagStream.Seek(8, SeekOrigin.Current);
-                                    TagStream.Write(BitConverter.GetBytes(TagRef.GlobalID), 0, 4);
-                                    TagStream.Seek(8, SeekOrigin.Current);
-                                    TagStream.Write(BitConverter.GetBytes(TagRef.GroupTag), 0, 4);
-                                    break;
-                                case PluginField.DataReference:
-                                    DataReferenceField DataRef = (DataReferenceField)Item.Value;
-                                    TagStream.Seek(20, SeekOrigin.Current);
-                                    TagStream.Write(BitConverter.GetBytes(DataRef.Size), 0, 4);
-                                    break;
-                                case PluginField.RealBounds:
-                                    RealBounds Bounds = (RealBounds)Item.Value;
-                                    TagStream.Write(BitConverter.GetBytes(Bounds.MinBound), 0, 4);
-                                    TagStream.Write(BitConverter.GetBytes(Bounds.MaxBound), 0, 4);
-                                    break;
-                                case PluginField.Vector3D:
-                                    RealVector3D Vector = (RealVector3D)Item.Value;
-                                    TagStream.Write(BitConverter.GetBytes(Vector.I), 0, 4);
-                                    TagStream.Write(BitConverter.GetBytes(Vector.J), 0, 4);
-                                    TagStream.Write(BitConverter.GetBytes(Vector.K), 0, 4);
-                                    break;
-                                default:
-                                    Console.WriteLine("Unrecognized field type {0} in Item {1} at offset {2}", Item.FieldType, Item.Name, Item.Offset);
-                                    break;
-                            }
-                        }
-                    }
-                }
-                byte[] ModifiedTag = new byte[tag.Header.DataSize];
-                TagStream.Seek(tag.Header.HeaderSize, SeekOrigin.Begin);
-                TagStream.Read(ModifiedTag, 0, (int)tag.Header.DataSize);
-                TagStream.Close();
-                fileStream.Seek(BlockInsertionPoint, SeekOrigin.Begin);
-                byte[] CompressedModifiedTag = Oodle.Compress(ModifiedTag, ModifiedTag.Length, OodleFormat.Kraken, OodleCompressionLevel.Optimal5); //Set to optimal because a smaller file can be put back in but a bigger one is no bueno
-                if (CompressedModifiedTag.Length <= DataCompressedSize)
-                {
-                    fileStream.Write(CompressedModifiedTag, 0, CompressedModifiedTag.Length);
-                    MessageBox.Show("Done!");
-                }
-                else
-                {
-                    MessageBox.Show("Compression failed - Could not compress to or below desired size: " + CompressedModifiedTag.Length + ", the size it got was " + DataCompressedSize);
-                }
-                */
-                #endregion
             }
             return null;
         }
@@ -534,45 +287,51 @@ namespace InfiniteModuleEditor
             tag.TagData = new byte[tag.Header.DataSize];
             TagStream.Read(tag.TagData, 0, (int)tag.Header.DataSize);
 
+            tag.MainStructSize = 0;
+            tag.TotalTagBlockDataSize = 0;
+
+            foreach (DataBlock DB in tag.DataBlockList)
+            {
+                tag.TotalTagBlockDataSize += (int)DB.Size;
+            }
+
+            tag.MainStructSize = (int)(tag.Header.DataSize - tag.TotalTagBlockDataSize);
+
+            foreach (TagStruct TS in tag.TagStructList)
+            {
+                if (TS.TargetIndex != -1 && BitConverter.ToInt32(tag.TagData, (int)TS.FieldOffset + 16) != 0)
+                {
+                    TagBlockInfo TBI = new TagBlockInfo
+                    {
+                        ReferenceOffset = (int)TS.FieldOffset,
+                        Count = BitConverter.ToInt32(tag.TagData, (int)TS.FieldOffset + 16),
+                        ReferenceDataBlockIndex = TS.FieldBlock,
+                        DataBlockIndex = TS.TargetIndex,
+                        DataOffset = (int)tag.DataBlockList[TS.TargetIndex].Offset,
+                        TagOffset = (int)tag.DataBlockList[TS.TargetIndex].Offset + ((tag.DataBlockList[TS.TargetIndex].Section == 1) ? 0 : tag.MainStructSize),
+                        Size = (int)tag.DataBlockList[TS.TargetIndex].Size
+                    };
+                    tag.TagBlockInfos.Add(TBI);
+                    System.Diagnostics.Debug.WriteLine("Data block at {0} has a size of {1}, with {2} blocks for a size of {3} for each block, its parent datablock is {4} and the reference to it is at offset {5}", 
+                        TBI.TagOffset, TBI.Size, TBI.Count, TBI.Size / TBI.Count, TBI.ReferenceDataBlockIndex, TBI.ReferenceOffset);
+                }
+            }
 
             PluginReader pluginReader = new PluginReader();
-            string PluginToLoad = "Plugins\\";
-            
-            bool LoadXML = true;
-
-            switch (Path.GetExtension(ShortTagName))
-            {
-                case ".grapplehookdefinitiontag":
-                    PluginToLoad += "saghgrapplehookdefinitiontag.xml";
-                    break;
-                case ".biped":
-                    PluginToLoad += "bipdbiped.xml";
-                    break;
-                case ".model":
-                    PluginToLoad += "hlmtmodel.xml";
-                    break;
-                case ".projectile":
-                    PluginToLoad += "projprojectile.xml";
-                    break;
-                case ".weapon":
-                    PluginToLoad += "weapweapon.xml";
-                    break;
-                default:
-                    MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName + "\nUsing generic fields to display tag");
-                    LoadXML = false;
-                    break;
-            }
-            List<PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
+            string PluginToLoad = "Plugins\\" + Utilities.GetClassID(ModuleFile.FileEntry.ClassId) + Path.GetExtension(ShortTagName).Substring(1) + ".xml";
+            List <PluginItem> PluginItems = File.Exists(PluginToLoad) ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
             GetTagValues(PluginItems, tag);
 
             tag.TagValues = PluginItems;
 
+            /*
             if (LoadXML)
             {
                 PluginItems = pluginReader.GenerateBlockValuesXML(PluginToLoad, tag, PluginItems, TagDataOffset);
                 GetTagValues(PluginItems, tag);
             }
+            */
 
             //WriteTagInfo(FilePath, tag, PluginItems);
             tag.TagValues = PluginItems;

@@ -12,404 +12,500 @@ namespace InfiniteModuleEditor
 {
     public class PluginReader
     {
-        public void RemoveBlocks(XmlDocument PluginXml, Tag Tag, int Offset)
+        /// <summary>
+        /// Loops through a nodes parents looking to see if one of them is a field block. If it is, we don't advance the position as this field isn't in the "main struct"
+        /// </summary>
+        /// <param name="Node">The node to begin looping through</param>
+        /// <param name="Position">The position of the stream for the PluginItem</param>
+        /// <param name="Size">The amount the position should be advanced</param>
+        /// <returns>The new position after advancing, if applicable</returns>
+        public int AdvancePosition(XmlNode Node, int Position, int Size, bool Recursive)
         {
-            PluginXml.Load("tempPlugin.xml");
-            bool Removed = false;
-            XmlNodeList AllNodes = PluginXml.SelectNodes("//*");
-            int Position = Offset;
-            for (int i = 0; i < AllNodes.Count; i++)
+            XmlNode TempNode = Node;
+            if (Recursive == true)
             {
-                switch (AllNodes[i].Name.ToLower())
+                while (TempNode.ParentNode.Name != "plugin")
                 {
-                    case "_field_block_64":
-                    case "_field_block_v2":
-                        for (int y = 0; y < AllNodes[i].ChildNodes.Count; y++)
-                        {
-                            AllNodes[i].RemoveChild(AllNodes[i].ChildNodes[y]);
-                            Removed = true;
-                        }
-                        Position += 20;
-                        break;
-                    default:
-                        break;
+                    if (TempNode.ParentNode.Name == "_field_block_64" || TempNode.ParentNode.Name == "_field_block_v2")
+                    {
+                        return Position;
+                    }
+                    TempNode = TempNode.ParentNode;
                 }
             }
-
-            PluginXml.Save("tempPlugin.xml");
-            if (Removed)
+            else if (TempNode.ParentNode.Name == "_field_block_64" || TempNode.ParentNode.Name == "_field_block_v2")
             {
-                RemoveBlocks(PluginXml, Tag, Offset);
+                return Position;
             }
+            return Position + Size;
         }
 
-        public List<PluginItem> GenerateBlockValuesXML(string PluginPath, Tag Tag, List<PluginItem> PluginItems, int Offset)
+        public int AdvancePosition(XmlNode Node, int Position, int Size, string TargetParent)
         {
-            XmlDocument PluginXml = new XmlDocument();
-            PluginXml.Load(PluginPath);
-            PluginXml.Save("tempPlugin.xml");
-            RemoveBlocks(PluginXml, Tag, Offset);
-            PluginXml.Load("tempPlugin.xml");
-            XmlDocument NewXml = new XmlDocument();
-            NewXml.LoadXml("<plugin>" + "</plugin>");
-            bool ChildBlocks = false;
-            Dictionary<int, string> BlocksToKeep = new Dictionary<int, string>();
-            XmlNodeList AllNodes = PluginXml.SelectNodes("//*");//PluginXml.GetElementsByTagName("_field_block_v2");
-            int Position = Offset;
-            for (int i = 0; i < AllNodes.Count; i++)
+            XmlNode TempNode = Node;
+            while (TempNode.ParentNode.Attributes.GetNamedItem("name").Value != TargetParent)
             {
-                switch (AllNodes[i].Name.ToLower())
+                if (TempNode.ParentNode.Name == "_field_block_64" || TempNode.ParentNode.Name == "_field_block_v2")
                 {
-                    case "plugin":
-                    case "item":
-                        break;
-                    case "_field_pad":
-                    case "_field_skip":
-                        Position += int.Parse(AllNodes[i].Attributes.GetNamedItem("length").Value);
-                        break;
-                    case "_field_block_64":
-                    case "_field_block_v2":
-                        if (Tag.TagBlockAtOffset(Position, 0) > 0)
-                        {
-                            BlocksToKeep.Add(Position, AllNodes[i].Attributes.GetNamedItem("name").Value);
-                        }
-                        Position += 20;
-                        break;
-                    case "_field_array":
-                    case "_field_struct": 
-                        break;
-                    case "_field_explanation":
-                    case "_field_custom":
-                    case "_field_comment":
-                        break;
-                    case "_field_reference_v2":
-                    case "_field_reference_64":
-                        Position += 28;
-                        break;
-                    case "_field_angle_bounds":
-                    case "_field_fraction_bounds":
-                    case "_field_real_bounds":
-                        Position += 8;
-                        break;
-                    case "_field_real_point_2d":
-                        Position += 8;
-                        break;
-                    case "_field_real_point_3d":
-                        Position += 12;
-                        break;
-                    case "_field_real_vector_2d":
-                        Position += 8;
-                        break;
-                    case "_field_real_vector_3d":
-                        Position += 12;
-                        break;
-                    case "_field_real_quaternion":
-                        Position += 16;
-                        break;
-                    case "_field_real_plane_2d":
-                        Position += 8;
-                        break;
-                    case "_field_real_plane_3d":
-                        Position += 12;
-                        break;
-                    case "_field_real_euler_angles_2d":
-                        Position += 8;
-                        break;
-                    case "_field_real_euler_angles_3d":
-                        Position += 12;
-                        break;
-                    case "_field_rgb_color":
-                        Position += 12;
-                        break;
-                    case "_field_real_rgb_color":
-                        Position += 16;
-                        break;
-                    case "_field_real_argb_color":
-                        Position += 16;
-                        break;
-                    case "_field_real":
-                    case "_field_real_fraction":
-                    case "_field_angle":
-                        Position += 4;
-                        break;
-                    case "_field_int64_integer":
-                    case "_field_qword_integer":
-                        Position += 8;
-                        break;
-                    case "_field_long_integer":
-                    case "_field_dword_integer":
-                    case "_field_long_block_index":
-                        Position += 4;
-                        break;
-                    case "_field_string_id":
-                        Position += 4;
-                        break;
-                    case "_field_short_integer":
-                    case "_field_word_integer":
-                    case "_field_short_block_index":
-                    case "_field_custom_short_block_index":
-                        Position += 2;
-                        break;
-                    case "_field_char_integer":
-                    case "_field_byte_integer":
-                    case "_field_char_block_index":
-                        Position += 1;
-                        break;
-                    case "_field_point_2d":
-                        Position += 4;
-                        break;
-                    case "_field_long_enum":
-                        Position += 4;
-                        break;
-                    case "_field_short_enum":
-                        Position += 2;
-                        break;
-                    case "_field_char_enum":
-                        Position += 1;
-                        break;
-                    case "_field_long_flags":
-                    case "_field_long_block_flags":
-                        Position += 4;
-                        break;
-                    case "_field_short_flags":
-                    case "_field_word_flags":
-                        Position += 2;
-                        break;
-                    case "_field_char_flags":
-                    case "_field_byte_flags":
-                        Position += 1;
-                        break;
-                    case "_field_data_64":
-                    case "_field_data_v2":
-                        Position += 24;
-                        break;
-                    case "_field_long_string":
-                        Position += 256;
-                        break;
-                    case "_field_string":
-                        Position += 32;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.WriteLine("Found unexpected NodeItem: {0}", AllNodes[i].Name);
-                        System.Diagnostics.Debug.WriteLine("Offsets may be incorrect");
-                        break;
+                    return Position;
                 }
+                TempNode = TempNode.ParentNode;
             }
-            
-            PluginXml.Load(PluginPath);
-            AllNodes = PluginXml.SelectNodes("//*");
-            for (int i = 0; i < AllNodes.Count; i++)
-            {
-                switch (AllNodes[i].Name.ToLower())
-                {
-                    case "_field_block_64":
-                    case "_field_block_v2":
-                        if (BlocksToKeep.ContainsValue(AllNodes[i].Attributes.GetNamedItem("name").Value))
-                        {
-                            int BlockOffset = 0;
-                            foreach (KeyValuePair<int, string> ValuePair in BlocksToKeep)
-                            {
-                                if (ValuePair.Value == AllNodes[i].Attributes.GetNamedItem("name").Value)
-                                {
-                                    BlockOffset = ValuePair.Key;
-                                    break;
-                                }
-                            }
-                            for (int y = 0; y < Tag.TagBlockAtOffset(BlockOffset, 0); y++)
-                            {
-                                foreach (XmlNode Child in AllNodes[i].ChildNodes)
-                                {
-                                    XmlNode NewNode = NewXml.ImportNode(Child, true);
-                                    NewXml.DocumentElement.AppendChild(NewNode);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            NewXml.Save("tempPlugin.xml");
-            PluginXml.Load("tempPlugin.xml");
-            RemoveBlocks(PluginXml, Tag, Offset);
-            PluginXml.Load("tempPlugin.xml");
-            AllNodes = PluginXml.SelectNodes("//*");
+            return Position + Size;
+        }
 
-            for (int i = 0; i < AllNodes.Count; i++)
+        public bool AreAnyNodeAncestorsBlocks(XmlNode Node)
+        {
+            XmlNode TempNode = Node;
+            while (TempNode.ParentNode.Name != "plugin")
             {
-                switch (AllNodes[i].Name.ToLower()) //get item names for enums, flags
+                if (TempNode.ParentNode.Name == "_field_block_64" || TempNode.ParentNode.Name == "_field_block_v2")
                 {
-                    case "plugin": //ignore, we know it's a plugin
-                    case "item": //do something else for this you lazy bum
-                        break;
-                    case "_field_pad":
-                    case "_field_skip":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = Position });
-                        Position += int.Parse(AllNodes[i].Attributes.GetNamedItem("length").Value);
-                        break;
-                    case "_field_block_64":
-                    case "_field_block_v2":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = Position });
-                        Position += 20;
-                        break;
-                    case "_field_array":
-                    case "_field_struct":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagStruct, Offset = Position });
-                        break;
-                    case "_field_explanation":
-                    case "_field_custom":
-                    case "_field_comment":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Comment, Offset = Position });
-                        break;
-                    case "_field_reference_v2":
-                    case "_field_reference_64":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagReference, Offset = Position });
-                        Position += 28;
-                        break;
-                    case "_field_angle_bounds":
-                    case "_field_fraction_bounds":
-                    case "_field_real_bounds":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealBounds, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_point_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_point_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_vector_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_vector_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_quaternion": //i am in hell and this is the devil
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Quaternion, Offset = Position });
-                        Position += 16;
-                        break;
-                    case "_field_real_plane_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_plane_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane3D, Offset = Position });
-                        Position += 16;
-                        break;
-                    case "_field_real_euler_angles_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_euler_angles_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_rgb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RGBColor, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_real_rgb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealRGBColor, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_argb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealARGBColor, Offset = Position });
-                        Position += 16;
-                        break;
-                    case "_field_real":
-                    case "_field_real_fraction":
-                    case "_field_angle": //do something for this
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Real, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_integer_bounds":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.ShortBounds, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_int64_integer":
-                    case "_field_qword_integer":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int64, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_long_integer":
-                    case "_field_dword_integer":
-                    case "_field_long_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_string_id":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.StringID, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_integer":
-                    case "_field_word_integer":
-                    case "_field_short_block_index":
-                    case "_field_custom_short_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_integer":
-                    case "_field_byte_integer":
-                    case "_field_char_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_point_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Point2D, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_long_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_long_flags":
-                    case "_field_long_block_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_flags":
-                    case "_field_word_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_flags":
-                    case "_field_byte_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_data_64":
-                    case "_field_data_v2":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.DataReference, Offset = Position });
-                        Position += 24;
-                        break;
-                    case "_field_long_string":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.LongString, Offset = Position });
-                        Position += 256;
-                        break;
-                    case "_field_string":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.String, Offset = Position });
-                        Position += 32;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.WriteLine("Found unexpected NodeItem: {0}", AllNodes[i].Name);
-                        System.Diagnostics.Debug.WriteLine("Offsets may be incorrect");
-                        break;
+                    return true;
                 }
+                TempNode = TempNode.ParentNode;
             }
-            File.Delete("tempPlugin.xml");
-            return PluginItems;
+            return false;
+        }
+
+        /// <summary>
+        /// Generates a new PluginItem and adds it to the list based on the field type of a given node and returns the new position for the next PluginItem to be added at
+        /// </summary>
+        /// <param name="Node">The node to be inspected</param>
+        /// <param name="PluginItems">The list of PluginItems to be added to</param>
+        /// <param name="PluginBlocks">A list of PluginBlocks so their child fields can be parsed later</param>
+        /// <param name="Tag">The tag currently loaded</param>
+        /// <param name="Position">The position the stream should be at when reading the tag</param>
+        /// <param name="OriginPosition">The original position of the stream (where this should subtract when parsing block positions)</param>
+        /// <returns>The new position that the stream should be at</returns>
+        public int AddPluginItems(XmlNode Node, List<PluginItem> PluginItems, List<PluginBlockInfo> PluginBlocks, Tag Tag, int Position, int OriginPosition)
+        {
+            int OldPosition = Position;
+            switch (Node.Name.ToLower()) //get item names for enums, flags
+            {
+                case "plugin": //ignore, we know it's a plugin
+                case "item": //do something else for this you lazy bum
+                    break;
+                case "_field_pad":
+                case "_field_skip":
+                    Position = AdvancePosition(Node, Position, int.Parse(Node.Attributes.GetNamedItem("length").Value), true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition });
+                    break;
+                case "_field_block_64":
+                case "_field_block_v2":                   
+                    TagBlockInfo TBI = Tag.TagBlockInfos.Find(x => x.ReferenceOffset == Position - OriginPosition && !AreAnyNodeAncestorsBlocks(Node));
+                    if (TBI != null)
+                    {
+                        PluginBlockInfo PBI = new PluginBlockInfo { TagBlockInfo = TBI, TagBlockName = Node.Attributes.GetNamedItem("name").Value };
+                        PBI.BlockSize = PBI.TagBlockInfo.DataOffset;
+                        foreach (XmlNode Child in Node.ChildNodes)
+                        {
+                            PBI.BlockSize = AddPluginBlockItems(Child, PBI.PluginItems, PluginBlocks, Tag, PBI.BlockSize, PBI.TagBlockName);
+                        }
+                        PBI.BlockSize = PBI.BlockSize - PBI.TagBlockInfo.DataOffset;
+                        PluginBlocks.Add(PBI);
+                    }
+                    Position = AdvancePosition(Node, Position, 20, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = OldPosition });
+                    break;
+                case "_field_array":
+                case "_field_struct":
+                    PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagStruct, Offset = OldPosition });
+                    break;
+                case "_field_explanation":
+                case "_field_custom":
+                case "_field_comment":
+                    PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Comment, Offset = OldPosition });
+                    break;
+                case "_field_reference_v2":
+                case "_field_reference_64":
+                    Position = AdvancePosition(Node, Position, 28, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagReference, Offset = OldPosition });
+                    break;
+                case "_field_angle_bounds":
+                case "_field_fraction_bounds":
+                case "_field_real_bounds":
+                    Position = AdvancePosition(Node, Position, 8, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealBounds, Offset = OldPosition });
+                    break;
+                case "_field_real_point_2d":
+                    Position = AdvancePosition(Node, Position, 8, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint2D, Offset = OldPosition });
+                    break;
+                case "_field_real_point_3d":
+                    Position = AdvancePosition(Node, Position, 12, true);
+                    if (OldPosition != Position)
+                            PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint3D, Offset = OldPosition });
+                    break;
+                case "_field_real_vector_2d":
+                    Position = AdvancePosition(Node, Position, 8, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector2D, Offset = OldPosition });
+                    break;
+                case "_field_real_vector_3d":
+                    Position = AdvancePosition(Node, Position, 12, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector3D, Offset = OldPosition });
+                    break;
+                case "_field_real_quaternion": //i am in hell and this is the devil
+                    Position = AdvancePosition(Node, Position, 16, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Quaternion, Offset = OldPosition });
+                    break;
+                case "_field_real_plane_2d":
+                    Position = AdvancePosition(Node, Position, 8, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane2D, Offset = OldPosition });
+                    break;
+                case "_field_real_plane_3d":
+                    Position = AdvancePosition(Node, Position, 12, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane3D, Offset = OldPosition });
+                    break;
+                case "_field_real_euler_angles_2d":
+                    Position = AdvancePosition(Node, Position, 8, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle2D, Offset = OldPosition });
+                    break;
+                case "_field_real_euler_angles_3d":
+                    Position = AdvancePosition(Node, Position, 12, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle3D, Offset = OldPosition });
+                    break;
+                case "_field_rgb_color":
+                    Position = AdvancePosition(Node, Position, 4, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real_rgb_color":
+                    Position = AdvancePosition(Node, Position, 12, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealRGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real_argb_color":
+                    Position = AdvancePosition(Node, Position, 16, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealARGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real":
+                case "_field_real_fraction":
+                case "_field_angle": //do something for this
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Real, Offset = OldPosition });
+                    break;
+                case "_field_short_integer_bounds":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.ShortBounds, Offset = OldPosition });
+                    break;
+                case "_field_int64_integer":
+                case "_field_qword_integer":
+                    Position = AdvancePosition(Node, Position, 8, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int64, Offset = OldPosition });
+                    break;
+                case "_field_long_integer":
+                case "_field_dword_integer":
+                case "_field_long_block_index":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int32, Offset = OldPosition });
+                    break;
+                case "_field_string_id":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.StringID, Offset = OldPosition });
+                    break;
+                case "_field_short_integer":
+                case "_field_word_integer":
+                case "_field_short_block_index":
+                case "_field_custom_short_block_index":
+                    Position = AdvancePosition(Node, Position, 2, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = OldPosition });
+                    break;
+                case "_field_char_integer":
+                case "_field_byte_integer":
+                case "_field_char_block_index":
+                    Position = AdvancePosition(Node, Position, 1, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int8, Offset = OldPosition });
+                    break;
+                case "_field_point_2d":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Point2D, Offset = OldPosition });
+                    break;
+                case "_field_long_enum":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum32, Offset = OldPosition });
+                    break;
+                case "_field_short_enum":
+                    Position = AdvancePosition(Node, Position, 2, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum16, Offset = OldPosition });
+                    break;
+                case "_field_char_enum":
+                    Position = AdvancePosition(Node, Position, 1, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum8, Offset = OldPosition });
+                    break;
+                case "_field_long_flags":
+                case "_field_long_block_flags":
+                    Position = AdvancePosition(Node, Position, 4, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags32, Offset = OldPosition });
+                    break;
+                case "_field_short_flags":
+                case "_field_word_flags":
+                    Position = AdvancePosition(Node, Position, 2, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags16, Offset = OldPosition });
+                    break;
+                case "_field_char_flags":
+                case "_field_byte_flags":
+                    Position = AdvancePosition(Node, Position, 1, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags8, Offset = OldPosition });
+                    break;
+                case "_field_data_64":
+                case "_field_data_v2":
+                    Position = AdvancePosition(Node, Position, 24, true); 
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.DataReference, Offset = OldPosition });
+                    break;
+                case "_field_long_string":
+                    Position = AdvancePosition(Node, Position, 256, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.LongString, Offset = OldPosition });
+                    break;
+                case "_field_string":
+                    Position = AdvancePosition(Node, Position, 32, true);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.String, Offset = OldPosition });
+                    break;
+                default:
+                    System.Diagnostics.Debug.WriteLine("Found unexpected NodeItem: {0}", Node.Name);
+                    System.Diagnostics.Debug.WriteLine("Offsets may be incorrect");
+                    break;
+            }
+            return Position;
+        }
+
+        public int AddPluginBlockItems(XmlNode Node, List<PluginItem> PluginItems, List<PluginBlockInfo> PluginBlocks, Tag Tag, int Position, string TargetParent)
+        {
+            int OldPosition = Position;
+            switch (Node.Name.ToLower()) //get item names for enums, flags
+            {
+                case "plugin": //ignore, we know it's a plugin
+                case "item": //do something else for this you lazy bum
+                    break;
+                case "_field_pad":
+                case "_field_skip":
+                    Position = AdvancePosition(Node, Position, int.Parse(Node.Attributes.GetNamedItem("length").Value), TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition });
+                    break;
+                case "_field_block_64":
+                case "_field_block_v2":
+                    Position = AdvancePosition(Node, Position, 20, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = OldPosition });
+                    break;
+                case "_field_array":
+                case "_field_struct":
+                    PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagStruct, Offset = OldPosition });
+                    break;
+                case "_field_explanation":
+                case "_field_custom":
+                case "_field_comment":
+                    PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Comment, Offset = OldPosition });
+                    break;
+                case "_field_reference_v2":
+                case "_field_reference_64":
+                    Position = AdvancePosition(Node, Position, 28, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagReference, Offset = OldPosition });
+                    break;
+                case "_field_angle_bounds":
+                case "_field_fraction_bounds":
+                case "_field_real_bounds":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealBounds, Offset = OldPosition });
+                    break;
+                case "_field_real_point_2d":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint2D, Offset = OldPosition });
+                    break;
+                case "_field_real_point_3d":
+                    Position = AdvancePosition(Node, Position, 12, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint3D, Offset = OldPosition });
+                    break;
+                case "_field_real_vector_2d":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector2D, Offset = OldPosition });
+                    break;
+                case "_field_real_vector_3d":
+                    Position = AdvancePosition(Node, Position, 12, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector3D, Offset = OldPosition });
+                    break;
+                case "_field_real_quaternion": //i am in hell and this is the devil
+                    Position = AdvancePosition(Node, Position, 16, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Quaternion, Offset = OldPosition });
+                    break;
+                case "_field_real_plane_2d":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane2D, Offset = OldPosition });
+                    break;
+                case "_field_real_plane_3d":
+                    Position = AdvancePosition(Node, Position, 12, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane3D, Offset = OldPosition });
+                    break;
+                case "_field_real_euler_angles_2d":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle2D, Offset = OldPosition });
+                    break;
+                case "_field_real_euler_angles_3d":
+                    Position = AdvancePosition(Node, Position, 12, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle3D, Offset = OldPosition });
+                    break;
+                case "_field_rgb_color":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real_rgb_color":
+                    Position = AdvancePosition(Node, Position, 12, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealRGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real_argb_color":
+                    Position = AdvancePosition(Node, Position, 16, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealARGBColor, Offset = OldPosition });
+                    break;
+                case "_field_real":
+                case "_field_real_fraction":
+                case "_field_angle": //do something for this
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Real, Offset = OldPosition });
+                    break;
+                case "_field_short_integer_bounds":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.ShortBounds, Offset = OldPosition });
+                    break;
+                case "_field_int64_integer":
+                case "_field_qword_integer":
+                    Position = AdvancePosition(Node, Position, 8, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int64, Offset = OldPosition });
+                    break;
+                case "_field_long_integer":
+                case "_field_dword_integer":
+                case "_field_long_block_index":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int32, Offset = OldPosition });
+                    break;
+                case "_field_string_id":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.StringID, Offset = OldPosition });
+                    break;
+                case "_field_short_integer":
+                case "_field_word_integer":
+                case "_field_short_block_index":
+                case "_field_custom_short_block_index":
+                    Position = AdvancePosition(Node, Position, 2, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = OldPosition });
+                    break;
+                case "_field_char_integer":
+                case "_field_byte_integer":
+                case "_field_char_block_index":
+                    Position = AdvancePosition(Node, Position, 1, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int8, Offset = OldPosition });
+                    break;
+                case "_field_point_2d":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Point2D, Offset = OldPosition });
+                    break;
+                case "_field_long_enum":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum32, Offset = OldPosition });
+                    break;
+                case "_field_short_enum":
+                    Position = AdvancePosition(Node, Position, 2, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum16, Offset = OldPosition });
+                    break;
+                case "_field_char_enum":
+                    Position = AdvancePosition(Node, Position, 1, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum8, Offset = OldPosition });
+                    break;
+                case "_field_long_flags":
+                case "_field_long_block_flags":
+                    Position = AdvancePosition(Node, Position, 4, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags32, Offset = OldPosition });
+                    break;
+                case "_field_short_flags":
+                case "_field_word_flags":
+                    Position = AdvancePosition(Node, Position, 2, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags16, Offset = OldPosition });
+                    break;
+                case "_field_char_flags":
+                case "_field_byte_flags":
+                    Position = AdvancePosition(Node, Position, 1, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags8, Offset = OldPosition });
+                    break;
+                case "_field_data_64":
+                case "_field_data_v2":
+                    Position = AdvancePosition(Node, Position, 24, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.DataReference, Offset = OldPosition });
+                    break;
+                case "_field_long_string":
+                    Position = AdvancePosition(Node, Position, 256, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.LongString, Offset = OldPosition });
+                    break;
+                case "_field_string":
+                    Position = AdvancePosition(Node, Position, 32, TargetParent);
+                    if (OldPosition != Position)
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.String, Offset = OldPosition });
+                    break;
+                default:
+                    System.Diagnostics.Debug.WriteLine("Found unexpected NodeItem: {0}", Node.Name);
+                    System.Diagnostics.Debug.WriteLine("Offsets may be incorrect");
+                    break;
+            }
+            return Position;
         }
 
         public List<PluginItem> LoadGenericTag(Tag Tag, int Offset)
@@ -426,197 +522,50 @@ namespace InfiniteModuleEditor
             return PluginItems;
         }
 
+        public int GetParentOffset(PluginBlockInfo PBI, Tag Tag, int Offset)
+        {
+            Offset += (PBI.TagBlockInfo.ReferenceDataBlockIndex != -1) ? (int)Tag.DataBlockList[PBI.TagBlockInfo.ReferenceDataBlockIndex].Offset : 0;
+            PluginBlockInfo ParentPBI = new PluginBlockInfo { TagBlockInfo = Tag.TagBlockInfos.Find(x => x.DataBlockIndex == PBI.TagBlockInfo.ReferenceDataBlockIndex) };
+            if (ParentPBI.TagBlockInfo != null)
+            {
+                GetParentOffset(ParentPBI, Tag, Offset);
+            }
+            
+            return Offset;
+        }
+
 
         public List<PluginItem> LoadPlugin(string PluginPath, Tag Tag, int Offset)
         {
             List<PluginItem> PluginItems = new List<PluginItem>();
             XmlDocument PluginXml = new XmlDocument();
             PluginXml.Load(PluginPath);
-            PluginXml.Save("tempPlugin.xml");
-            RemoveBlocks(PluginXml, Tag, Offset);
-            
-            PluginXml.Load("tempPlugin.xml");
+            List<PluginBlockInfo> PluginBlocks = new List<PluginBlockInfo>();
             XmlNodeList AllNodes = PluginXml.SelectNodes("//*");
 
             int Position = Offset;
 
             for (int i = 0; i < AllNodes.Count; i++)
             {
-                switch (AllNodes[i].Name.ToLower()) //get item names for enums, flags
+                Position = AddPluginItems(AllNodes[i], PluginItems, PluginBlocks, Tag, Position, Offset);
+            }
+            
+            //Position is now the end of the main struct EXCEPT Infinite doesn't use the main struct for a lot of tags (or maybe all of them idk) so I really just mean the tag's main body
+            for (int i = 0; i < PluginBlocks.Count; i++)
+            {
+                for (int y = 0; y < PluginBlocks[i].TagBlockInfo.Count; y++)
                 {
-                    case "plugin": //ignore, we know it's a plugin
-                    case "item": //do something else for this you lazy bum
-                        break;
-                    case "_field_pad":
-                    case "_field_skip":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = Position });
-                        Position += int.Parse(AllNodes[i].Attributes.GetNamedItem("length").Value);
-                        break;
-                    case "_field_block_64":
-                    case "_field_block_v2":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagBlock, Offset = Position });
-                        Position += 20;
-                        break;
-                    case "_field_array":
-                    case "_field_struct":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagStruct, Offset = Position });
-                        break;
-                    case "_field_explanation":
-                    case "_field_custom":
-                    case "_field_comment":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Comment, Offset = Position });
-                        break;
-                    case "_field_reference_v2":
-                    case "_field_reference_64":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.TagReference, Offset = Position });
-                        Position += 28;
-                        break;
-                    case "_field_angle_bounds":
-                    case "_field_fraction_bounds":
-                    case "_field_real_bounds":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealBounds, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_point_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_point_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealPoint3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_vector_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_vector_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Vector3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_quaternion": //i am in hell and this is the devil
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Quaternion, Offset = Position });
-                        Position += 16;
-                        break;
-                    case "_field_real_plane_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_plane_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Plane3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_euler_angles_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle2D, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_real_euler_angles_3d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.EulerAngle3D, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_rgb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RGBColor, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_real_rgb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealRGBColor, Offset = Position });
-                        Position += 12;
-                        break;
-                    case "_field_real_argb_color":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.RealARGBColor, Offset = Position });
-                        Position += 16;
-                        break;
-                    case "_field_real":
-                    case "_field_real_fraction":
-                    case "_field_angle": //do something for this
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Real, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_integer_bounds":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.ShortBounds, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_int64_integer":
-                    case "_field_qword_integer":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int64, Offset = Position });
-                        Position += 8;
-                        break;
-                    case "_field_long_integer":
-                    case "_field_dword_integer":
-                    case "_field_long_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_string_id":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.StringID, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_integer":
-                    case "_field_word_integer":
-                    case "_field_short_block_index":
-                    case "_field_custom_short_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_integer":
-                    case "_field_byte_integer":
-                    case "_field_char_block_index":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Int8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_point_2d":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Point2D, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_long_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_enum":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Enum8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_long_flags":
-                    case "_field_long_block_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags32, Offset = Position });
-                        Position += 4;
-                        break;
-                    case "_field_short_flags":
-                    case "_field_word_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags16, Offset = Position });
-                        Position += 2;
-                        break;
-                    case "_field_char_flags":
-                    case "_field_byte_flags":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.Flags8, Offset = Position });
-                        Position += 1;
-                        break;
-                    case "_field_data_64":
-                    case "_field_data_v2":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.DataReference, Offset = Position });
-                        Position += 24;
-                        break;
-                    case "_field_long_string":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.LongString, Offset = Position });
-                        Position += 256;
-                        break;
-                    case "_field_string":
-                        PluginItems.Add(new PluginItem { Name = AllNodes[i].Attributes.GetNamedItem("name").Value, FieldType = PluginField.String, Offset = Position });
-                        Position += 32;
-                        break;
-                    default:
-                        System.Diagnostics.Debug.WriteLine("Found unexpected NodeItem: {0}", AllNodes[i].Name);
-                        System.Diagnostics.Debug.WriteLine("Offsets may be incorrect");
-                        break;
+                    for (int z = 0; z < PluginBlocks[i].PluginItems.Count; z++)
+                    {
+                        //int ChildOffset = GetParentOffset(PluginBlocks[i], Tag, 0);//(PluginBlocks[i].TagBlockInfo.ReferenceDataBlockIndex > 0) ? (int)Tag.DataBlockList[PluginBlocks[i].TagBlockInfo.ReferenceDataBlockIndex].Offset : 0;
+                        PluginItem PI = new PluginItem { Name = PluginBlocks[i].PluginItems[z].Name, FieldType = PluginBlocks[i].PluginItems[z].FieldType, Offset = PluginBlocks[i].PluginItems[z].Offset };
+                        //System.Diagnostics.Debug.WriteLine("{0} {1} {2} {3} {4} {5}", PI.Name, PI.Offset, PluginBlocks[i].PluginItems[z].Offset, PluginBlocks[i].BlockSize * z, ChildOffset,  PI.FieldType);
+                        PluginItems.Add(PI);
+                    }
                 }
             }
-
-            File.Delete("tempPlugin.xml");
             
-
+            
             /*
             StreamWriter sw = new StreamWriter("test.txt");
             foreach (PluginItem pluginItem in PluginItems)
@@ -629,6 +578,14 @@ namespace InfiniteModuleEditor
 
             return PluginItems;
         }
+    }
+
+    public class PluginBlockInfo
+    {
+        public TagBlockInfo TagBlockInfo;
+        public string TagBlockName;
+        public List<PluginItem> PluginItems = new List<PluginItem>();
+        public int BlockSize;
     }
 
     public class PluginItem
