@@ -26,6 +26,7 @@ namespace InfiniteModuleEditor
         public int MainStructSize { get; set; }
         public int TotalTagBlockDataSize { get; set; }
         public int StringTableOffset { get; set; }
+        public int TrueDataOffset { get; set; }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 80)]

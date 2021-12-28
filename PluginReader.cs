@@ -295,7 +295,7 @@ namespace InfiniteModuleEditor
             List<PluginItem> PluginItems = new List<PluginItem>();
             int Position = Offset;
 
-            for (int i = 0; i < Tag.Header.DataSize; i += 4)
+            for (int i = 0; i < Tag.Header.DataSize - Tag.TrueDataOffset; i += 4)
             {
                 PluginItems.Add(new PluginItem { Name = "Unknown Field " + i, FieldType = PluginField.Int32, Offset = Position });
                 Position += 4;

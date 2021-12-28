@@ -267,8 +267,9 @@ namespace InfiniteModuleEditor
             }
             TagStream.Seek(-12, SeekOrigin.Current);
             TagDataOffset = (int)TagStream.Position - TagDataOffset;
+            tag.TrueDataOffset = TagDataOffset;
             TagStream.Seek(CurrentOffset, SeekOrigin.Begin);
-
+            System.Diagnostics.Debug.WriteLine("{0} {1} {2}", CurrentOffset, ModuleFile.FileEntry.GlobalTagId, TagDataOffset);
             tag.TagData = new byte[tag.Header.DataSize];
             TagStream.Read(tag.TagData, 0, (int)tag.Header.DataSize);
 
