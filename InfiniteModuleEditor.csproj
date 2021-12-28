@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Lumu.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -110,6 +113,7 @@
     <Resource Include="Icons\Exit.jpg" />
     <Resource Include="Icons\Maximize.ico" />
     <Resource Include="Icons\Minimise.jpg" />
+    <Resource Include="Lumu.ico" />
     <Content Include="Plugins\saghGrappleHookDefinitionTag.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
