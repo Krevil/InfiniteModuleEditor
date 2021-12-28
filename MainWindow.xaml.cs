@@ -219,12 +219,12 @@ namespace InfiniteModuleEditor
 
         private void Menu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            WindowState = WindowState.Maximized;
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
         private void Maximize_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = WindowState.Maximized;
+            WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)

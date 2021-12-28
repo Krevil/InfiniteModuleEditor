@@ -35,7 +35,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Lumu.ico</ApplicationIcon>
+    <ApplicationIcon>Icons\Lumu.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -58,12 +58,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ModuleEditor.cs" />
+    <Compile Include="InfiniteModuleEditor\ModuleEditor.cs" />
     <Compile Include="Slipspace\Module.cs" />
     <Compile Include="Slipspace\ModuleFile.cs" />
-    <Compile Include="PluginReader.cs" />
+    <Compile Include="InfiniteModuleEditor\PluginReader.cs" />
     <Compile Include="Slipspace\Tag.cs" />
-    <Compile Include="Utilities.cs" />
+    <Compile Include="InfiniteModuleEditor\Utilities.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -113,7 +113,7 @@
     <Resource Include="Icons\Exit.jpg" />
     <Resource Include="Icons\Maximize.ico" />
     <Resource Include="Icons\Minimise.jpg" />
-    <Resource Include="Lumu.ico" />
+    <Resource Include="Icons\Lumu.ico" />
     <Content Include="Plugins\saghGrappleHookDefinitionTag.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
