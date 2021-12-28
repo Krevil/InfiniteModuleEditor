@@ -363,5 +363,6 @@
             <Button x:Name="SaveAndCloseButton" Content="Save &amp; Close" HorizontalAlignment="Left" Margin="90,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveAndCloseButton_Click" Visibility="Hidden" Template="{DynamicResource ButtonControlTemplate}"/>
             <Button x:Name="CloseButton" Content="Close" HorizontalAlignment="Left" Margin="170,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="CloseButton_Click" Visibility="Hidden" Template="{DynamicResource ButtonControlTemplate}"/>
         </Grid>
+        <GridSplitter HorizontalAlignment="Left" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1" VerticalAlignment="Stretch" Width="4" Background="#FF3C3C3C" Margin="-2,0,0,0"/>
     </Grid>
 </Window>
