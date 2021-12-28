@@ -107,6 +107,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Icons\Exit.jpg" />
+    <Resource Include="Icons\Maximize.ico" />
+    <Resource Include="Icons\Minimise.jpg" />
     <Content Include="Plugins\saghGrappleHookDefinitionTag.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -125,5 +128,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

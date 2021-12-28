@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InfiniteModuleEditor"
         mc:Ignorable="d"
-        Title="Halo Infinite Module Editor" Height="720" Width="1280">
+        Title="Halo Infinite Module Editor" Height="720" Width="1280" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" >
 
 
 
@@ -81,7 +81,6 @@
                                 <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
                             </Trigger>
                             <Trigger Property="IsHighlighted" Value="True">
-                                <Setter Property="Background" TargetName="templateRoot" Value="#3D26A0DA"/>
                                 <Setter Property="BorderBrush" TargetName="templateRoot" Value="#FF26A0DA"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -144,7 +143,6 @@
                                         <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
                                     </Trigger>
                                     <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter Property="Background" TargetName="templateRoot" Value="#3D26A0DA"/>
                                         <Setter Property="BorderBrush" TargetName="templateRoot" Value="#FF26A0DA"/>
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
@@ -188,7 +186,6 @@
                                         <Setter Property="Visibility" TargetName="Icon" Value="Collapsed"/>
                                     </Trigger>
                                     <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter Property="Background" TargetName="templateRoot" Value="#3D26A0DA"/>
                                         <Setter Property="BorderBrush" TargetName="templateRoot" Value="#FF26A0DA"/>
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
@@ -277,9 +274,30 @@
             </Style.Triggers>
         </Style>
 
-        <Style TargetType="{x:Type local:MainWindow}">
-
-        </Style>
+        <ControlTemplate x:Key="ButtonControlTemplate" TargetType="{x:Type Button}">
+            <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                <ContentPresenter x:Name="contentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsDefaulted" Value="True">
+                    <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FF3C7FB1"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FF2C628B"/>
+                </Trigger>
+                <Trigger Property="ToggleButton.IsChecked" Value="True">
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FF245A83"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" TargetName="border" Value="#FFF4F4F4"/>
+                    <Setter Property="BorderBrush" TargetName="border" Value="#FFADB2B5"/>
+                    <Setter Property="Foreground" Value="#FF838383"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
 
     </Window.Resources>
     <Window.CommandBindings>
@@ -297,13 +315,28 @@
             <ColumnDefinition MinWidth="800"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Height="25" VerticalAlignment="Top">
-            <Rectangle Fill="#FF2D2D2D" Stroke="#FF646464"/>
-            <Menu HorizontalAlignment="Left" Height="23" Margin="-1,1,0,0" VerticalAlignment="Top" Width="35" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464">
+            <Rectangle Fill="#FF2D2D2D" Stroke="#FF646464" Margin="1,0,-1,0" MouseLeftButtonDown="Menu_MouseLeftButtonDown" />
+            <Button x:Name="ExitButton" Click="ExitButton_Click" Width="20" Height="20" HorizontalAlignment="Right" BorderBrush="{x:Null}" Foreground="{x:Null}" Margin="0,3,2,2" Template="{DynamicResource ButtonControlTemplate}">
+                <Button.Background>
+                    <ImageBrush ImageSource="Icons/Exit.jpg"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="MaximizeButton" Click="Maximize_Click" Width="20" Height="20" HorizontalAlignment="Right" Margin="0,3,27,2" Foreground="{x:Null}" BorderBrush="{x:Null}" Template="{DynamicResource ButtonControlTemplate}">
+                <Button.Background>
+                    <ImageBrush ImageSource="Icons/Maximize.ico" Viewbox="0,0,0.9,1" Viewport="0,0,0.985,0.9"/>
+                </Button.Background>
+            </Button>
+            <Button x:Name="MinimizeButton" Click="MinimizeButton_Click" Width="20" Height="20" HorizontalAlignment="Right" Margin="0,3,52,2" BorderBrush="{x:Null}" Foreground="{x:Null}" Template="{DynamicResource ButtonControlTemplate}">
+                <Button.Background>
+                    <ImageBrush ImageSource="Icons/minimise.jpg"/>
+                </Button.Background>
+            </Button>
+            <Menu HorizontalAlignment="Left" Height="23" Margin="2,1,0,0" VerticalAlignment="Top" Width="35" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" >
                 <MenuItem Header="File" Height="23" Width="35" Foreground="#FFC8C8C8" Style="{DynamicResource MenuItemStyle}">
-                    <MenuItem Command="Open" Header="Open Module" x:Name="Open_Module"/>
-                    <MenuItem Header="Open Tag" x:Name="Open_Tag" IsEnabled="False"/>
-                    <MenuItem Header="Close Module" x:Name="Close_Module" IsEnabled="false" Click="Close_Module_Click"/>
-                    <MenuItem Command="Close" Header="Exit" x:Name="Exit" InputGestureText="Alt+F4"/>
+                    <MenuItem Command="Open" Header="Open Module" x:Name="Open_Module" Style="{DynamicResource MenuItemStyle}"/>
+                    <MenuItem Header="Open Tag" x:Name="Open_Tag" IsEnabled="False" Style="{DynamicResource MenuItemStyle}"/>
+                    <MenuItem Header="Close Module" x:Name="Close_Module" IsEnabled="false" Click="Close_Module_Click" Style="{DynamicResource MenuItemStyle}"/>
+                    <MenuItem Command="Close" Header="Exit" x:Name="Exit" InputGestureText="Alt+F4" Style="{DynamicResource MenuItemStyle}"/>
                 </MenuItem>
             </Menu>
         </Grid>
@@ -326,9 +359,9 @@
         </Grid>
         <Grid Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
             <Rectangle Fill="#FF1E1E1E" Stroke="#FF646464" HorizontalAlignment="Left" Height="30" Margin="0,629,0,0" VerticalAlignment="Top" Width="800"/>
-            <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveButton_Click" Visibility="Hidden"/>
-            <Button x:Name="SaveAndCloseButton" Content="Save &amp; Close" HorizontalAlignment="Left" Margin="90,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveAndCloseButton_Click" Visibility="Hidden"/>
-            <Button x:Name="CloseButton" Content="Close" HorizontalAlignment="Left" Margin="170,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="CloseButton_Click" Visibility="Hidden"/>
+            <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="10,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveButton_Click" Visibility="Hidden" Template="{DynamicResource ButtonControlTemplate}"/>
+            <Button x:Name="SaveAndCloseButton" Content="Save &amp; Close" HorizontalAlignment="Left" Margin="90,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="SaveAndCloseButton_Click" Visibility="Hidden" Template="{DynamicResource ButtonControlTemplate}"/>
+            <Button x:Name="CloseButton" Content="Close" HorizontalAlignment="Left" Margin="170,6,0,0" VerticalAlignment="Top" Width="75" Background="#FF1E1E1E" Foreground="#FFC8C8C8" BorderBrush="#FF646464" Click="CloseButton_Click" Visibility="Hidden" Template="{DynamicResource ButtonControlTemplate}"/>
         </Grid>
     </Grid>
 </Window>

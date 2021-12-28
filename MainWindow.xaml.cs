@@ -211,5 +211,30 @@ namespace InfiniteModuleEditor
         {
             TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
         }
+
+        private void Menu_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DragMove();
+        }
+
+        private void Menu_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            WindowState = WindowState.Maximized;
+        }
+
+        private void Maximize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Maximized;
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
     }
 }
