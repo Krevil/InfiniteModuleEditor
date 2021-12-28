@@ -66,14 +66,21 @@ namespace InfiniteModuleEditor
                     else
                         return;
                 }
-                ModuleStream = new FileStream(ofd.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-                Module = ModuleEditor.ReadModule(ModuleStream);
-                TagList.ItemsSource = Module.ModuleFiles.Keys;
-                TagList.Visibility = Visibility.Visible;
-                TagListFilter.Visibility = Visibility.Visible;
-                Close_Module.IsEnabled = true;
-                FileStreamOpen = true;
-                //show tag list, make clickable
+                try
+                {
+                    ModuleStream = new FileStream(ofd.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+                    Module = ModuleEditor.ReadModule(ModuleStream);
+                    TagList.ItemsSource = Module.ModuleFiles.Keys;
+                    TagList.Visibility = Visibility.Visible;
+                    TagListFilter.Visibility = Visibility.Visible;
+                    Close_Module.IsEnabled = true;
+                    FileStreamOpen = true;
+                    //show tag list, make clickable
+                }
+                catch // infinite is running
+                {
+                    MessageBox.Show("This File is open in another process", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -91,6 +98,8 @@ namespace InfiniteModuleEditor
         {
             if (TagListFilter.IsFocused)
                 return;
+            if (TagList.SelectedItem == null)
+                return;
 
             if (!TagOpen && FileStreamOpen)
             {
@@ -107,10 +116,13 @@ namespace InfiniteModuleEditor
                 CloseButton.Visibility = Visibility.Visible;
                 SaveAndCloseButton.Visibility = Visibility.Visible;
                 TagOpen = true;
+                // do the tag data filter when opening tag // alternatively you could reset that filter when opening
+                TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
             }
             else
             {
                 MessageBox.Show("You already have a tag open. Close it before opening another.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                TagList.SelectedItem = null;
             }
         }
 
@@ -168,7 +180,8 @@ namespace InfiniteModuleEditor
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
-            
+            TagList.SelectedItem = null;
+
         }
 
         private void SaveAndCloseButton_Click(object sender, RoutedEventArgs e)
@@ -186,6 +199,7 @@ namespace InfiniteModuleEditor
                 TagSearch.Visibility = Visibility.Hidden;
                 TagNameText.Visibility = Visibility.Hidden;
                 TagOpen = false;
+                TagList.SelectedItem = null;
             }
             else 
                 MessageBox.Show("Failed to compress tag to the right size");
