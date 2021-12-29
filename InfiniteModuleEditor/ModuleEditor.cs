@@ -292,6 +292,7 @@ namespace InfiniteModuleEditor
                     PluginToLoad = "Plugins\\" + Utilities.GetClassID(ModuleFile.FileEntry.ClassId) + ".xml";
                 else LoadXML = false;
             }
+            System.Diagnostics.Debug.WriteLine("Loading " + PluginToLoad);
             List <PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
             GetTagValues(PluginItems, tag);

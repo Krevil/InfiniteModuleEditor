@@ -328,11 +328,18 @@ namespace InfiniteModuleEditor
                     if (BlockCount > 0)
                     {
                         //System.Diagnostics.Debug.WriteLine("PI offset {0}", PI.Offset);
-                        TagStruct TS = Tag.TagStructArray.First(x => x.FieldOffset == PluginItems[y].Offset);
-                        DataBlock DB = Tag.DataBlockArray[TS.TargetIndex];
-                        for (int i = 0; i < DB.Size; i += 4)
+                        try
                         {
-                            PluginItems.Add(new PluginItem { Name = "Tag Block " + TS.FieldOffset + " Unknown Field " + i, FieldType = PluginField.Int32, Offset = Offset + (int)DB.Offset + i});
+                            TagStruct TS = Tag.TagStructArray.First(x => x.FieldOffset == PluginItems[y].Offset);
+                            DataBlock DB = Tag.DataBlockArray[TS.TargetIndex];
+                            for (int i = 0; i < DB.Size; i += 4)
+                            {
+                                PluginItems.Add(new PluginItem { Name = "Tag Block " + TS.FieldOffset + " Unknown Field " + i, FieldType = PluginField.Int32, Offset = Offset + (int)DB.Offset + i });
+                            }
+                        }
+                        catch
+                        {
+                            System.Windows.MessageBox.Show("Couldn't locate tagblock at " + PluginItems[y].Offset);
                         }
                     }
                 }

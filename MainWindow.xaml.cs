@@ -115,6 +115,7 @@ namespace InfiniteModuleEditor
                 SaveButton.Visibility = Visibility.Visible;
                 CloseButton.Visibility = Visibility.Visible;
                 SaveAndCloseButton.Visibility = Visibility.Visible;
+                ExtractTagButton.Visibility = Visibility.Visible;
                 TagOpen = true;
                 // do the tag data filter when opening tag // alternatively you could reset that filter when opening
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
@@ -176,6 +177,7 @@ namespace InfiniteModuleEditor
             SaveButton.Visibility = Visibility.Hidden;
             CloseButton.Visibility = Visibility.Hidden;
             SaveAndCloseButton.Visibility = Visibility.Hidden;
+            ExtractTagButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
@@ -195,6 +197,7 @@ namespace InfiniteModuleEditor
                 SaveButton.Visibility = Visibility.Hidden;
                 CloseButton.Visibility = Visibility.Hidden;
                 SaveAndCloseButton.Visibility = Visibility.Hidden;
+                ExtractTagButton.Visibility = Visibility.Hidden;
                 TagViewer.Visibility = Visibility.Hidden;
                 TagSearch.Visibility = Visibility.Hidden;
                 TagNameText.Visibility = Visibility.Hidden;
@@ -249,6 +252,21 @@ namespace InfiniteModuleEditor
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void ExtractTagButton_Click(object sender, RoutedEventArgs e)
+        {
+            var sfd = new SaveFileDialog
+            {
+                FileName = TagFileName
+            };
+            if (sfd.ShowDialog() == true)
+            {
+                FileStream OutputStream = new FileStream(sfd.FileName, FileMode.Create);
+                TagStream.Seek(0, SeekOrigin.Begin);
+                TagStream.CopyTo(OutputStream);
+                OutputStream.Close();
+            }
         }
     }
 }
