@@ -220,7 +220,22 @@ namespace InfiniteModuleEditor
                     TagListFilter.Visibility = Visibility.Hidden;
                 }
                 else
-                    MessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                {
+                    TagStream.Close();
+                    SaveButton.Visibility = Visibility.Hidden;
+                    CloseButton.Visibility = Visibility.Hidden;
+                    SaveAndCloseButton.Visibility = Visibility.Hidden;
+                    ExtractTagButton.Visibility = Visibility.Hidden;
+                    TagViewer.Visibility = Visibility.Hidden;
+                    TagSearch.Visibility = Visibility.Hidden;
+                    TagNameText.Visibility = Visibility.Hidden;
+                    TagOpen = false;
+                    TagList.SelectedItem = null;
+                    ModuleStream.Close();
+                    FileStreamOpen = false;
+                    TagList.Visibility = Visibility.Hidden;
+                    TagListFilter.Visibility = Visibility.Hidden;
+                }
             }
         }
 
