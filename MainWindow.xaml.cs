@@ -56,11 +56,11 @@ namespace InfiniteModuleEditor
                 {
                     if (TagOpen)
                     {
-                        MessageBox.Show("You have a tag open - close it first before opening another module.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        GenericMessageBox.Show("You have a tag open - close it first before opening another module.", "Error", MessageBoxButton.OK);
                         return;
                     }
                     //check to confirm close
-                    MessageBoxResult Result = MessageBox.Show("A Module is already open. Close it and open a new one?", "Module Open", MessageBoxButton.YesNoCancel, MessageBoxImage.Error);
+                    MessageBoxResult Result = GenericMessageBox.Show("A Module is already open. Close it and open a new one?", "Module Open", MessageBoxButton.YesNo);
                     if (Result != MessageBoxResult.Yes)
                         ModuleStream.Close();
                     else
@@ -68,6 +68,7 @@ namespace InfiniteModuleEditor
                 }
                 try
                 {
+                    StatusBar.Text = " Loading module...";
                     ModuleStream = new FileStream(ofd.FileName, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                     Module = ModuleEditor.ReadModule(ModuleStream);
                     TagList.ItemsSource = Module.ModuleFiles.Keys;
@@ -75,11 +76,13 @@ namespace InfiniteModuleEditor
                     TagListFilter.Visibility = Visibility.Visible;
                     Close_Module.IsEnabled = true;
                     FileStreamOpen = true;
+                    StatusBar.Text = " Ready...";
                     //show tag list, make clickable
                 }
                 catch // infinite is running
                 {
-                    MessageBox.Show("This File is open in another process", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    GenericMessageBox.Show("This file is open in another process", "Error", MessageBoxButton.OK);
+                    StatusBar.Text = " Ready...";
                 }
             }
         }
@@ -103,6 +106,7 @@ namespace InfiniteModuleEditor
 
             if (!TagOpen && FileStreamOpen)
             {
+                StatusBar.Text = " Loading tag...";
                 string TagName = e.AddedItems[0].ToString();
                 TagNameText.Text = TagName;
                 TagNameText.Visibility = Visibility.Visible;
@@ -117,12 +121,13 @@ namespace InfiniteModuleEditor
                 SaveAndCloseButton.Visibility = Visibility.Visible;
                 ExtractTagButton.Visibility = Visibility.Visible;
                 TagOpen = true;
+                StatusBar.Text = " Ready...";
                 // do the tag data filter when opening tag // alternatively you could reset that filter when opening
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
             }
             else
             {
-                MessageBox.Show("You already have a tag open. Close it before opening another.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                GenericMessageBox.Show("You already have a tag open. Close it before opening another.", "Error", MessageBoxButton.OK);
                 TagList.SelectedItem = null;
             }
         }
@@ -156,19 +161,21 @@ namespace InfiniteModuleEditor
             }
             catch
             {
-                MessageBox.Show("Couldn't parse input for " + TagFileName, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                GenericMessageBox.Show("Couldn't parse input for " + TagFileName, "Error", MessageBoxButton.OK);
             }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            StatusBar.Text = " Saving...";
             bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
             //save compressed block from moduleeditor method
 
             if (Result)
-                MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+                GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
             else
-                MessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                GenericMessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK);
+            StatusBar.Text = " Ready...";
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -188,11 +195,12 @@ namespace InfiniteModuleEditor
 
         private void SaveAndCloseButton_Click(object sender, RoutedEventArgs e)
         {
+            StatusBar.Text = " Saving...";
             bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
             //save compressed block from moduleeditor method
             if (Result)
             {
-                MessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+                GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
                 TagStream.Close();
                 SaveButton.Visibility = Visibility.Hidden;
                 CloseButton.Visibility = Visibility.Hidden;
@@ -205,7 +213,9 @@ namespace InfiniteModuleEditor
                 TagList.SelectedItem = null;
             }
             else 
-                MessageBox.Show("Failed to compress tag to the right size");
+                GenericMessageBox.Show("Failed to compress tag to the right size", "Error", MessageBoxButton.OK);
+
+            StatusBar.Text = " Ready...";
         }
 
         private void Close_Module_Click(object sender, RoutedEventArgs e)
@@ -277,10 +287,12 @@ namespace InfiniteModuleEditor
             };
             if (sfd.ShowDialog() == true)
             {
+                StatusBar.Text = " Saving tag...";
                 FileStream OutputStream = new FileStream(sfd.FileName, FileMode.Create);
                 TagStream.Seek(0, SeekOrigin.Begin);
                 TagStream.CopyTo(OutputStream);
                 OutputStream.Close();
+                StatusBar.Text = " Ready...";
             }
         }
     }

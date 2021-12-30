@@ -58,12 +58,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Windows\GenericMessageBox.xaml.cs">
+      <DependentUpon>GenericMessageBox.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InfiniteModuleEditor\ModuleEditor.cs" />
     <Compile Include="Slipspace\Module.cs" />
     <Compile Include="Slipspace\ModuleFile.cs" />
     <Compile Include="InfiniteModuleEditor\PluginReader.cs" />
     <Compile Include="Slipspace\Tag.cs" />
     <Compile Include="InfiniteModuleEditor\Utilities.cs" />
+    <Page Include="Windows\GenericMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
