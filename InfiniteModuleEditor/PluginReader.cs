@@ -539,6 +539,8 @@ namespace InfiniteModuleEditor
                     {
                         try
                         {
+                            if (!Tag.TagStructArray.Any(x => x.FieldOffset == PluginItems[y].Offset))
+                                continue;
                             TagStruct TS = Tag.TagStructArray.First(x => x.FieldOffset == PluginItems[y].Offset);
                             DataBlock DB = Tag.DataBlockArray[TS.TargetIndex];
                             XmlNode PluginNode = PluginXml.SelectSingleNode("//_field_block_v2[@name='" + PluginItems[y].Name + "']");
