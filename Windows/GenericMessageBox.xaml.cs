@@ -54,7 +54,7 @@ namespace InfiniteModuleEditor
         public static MessageBoxResult Show(string Message, string Title, MessageBoxButton Option)
         {
             GenericMessageBox MsgBox = new GenericMessageBox();
-            MsgBox.MessageBtnOkay.Visibility = Visibility.Hidden;
+            MsgBox.Owner = Application.Current.MainWindow;
             MsgBox.MessageBtnYes.Visibility = Visibility.Hidden;
             MsgBox.MessageBtnNo.Visibility = Visibility.Hidden;
             MsgBox.MessageBody.Text = Message;
@@ -62,6 +62,36 @@ namespace InfiniteModuleEditor
             MsgBox.Buttons = Option;
 
             MsgBox.ShowDialog();
+            return MsgBox.Result;
+        }
+
+        public static MessageBoxResult Show(string Message, string Title)
+        {
+            GenericMessageBox MsgBox = new GenericMessageBox();
+            MsgBox.Owner = Application.Current.MainWindow;
+            MsgBox.MessageBtnOkay.Visibility = Visibility.Hidden;
+            MsgBox.MessageBtnYes.Visibility = Visibility.Hidden;
+            MsgBox.MessageBtnNo.Visibility = Visibility.Hidden;
+            MsgBox.MessageBody.Text = Message;
+            MsgBox.MessageTitle.Text = Title;
+            MsgBox.Buttons = MessageBoxButton.OK;
+
+            MsgBox.Show();
+            return MsgBox.Result;
+        }
+
+        public static MessageBoxResult Show(string Message)
+        {
+            GenericMessageBox MsgBox = new GenericMessageBox();
+            MsgBox.Owner = Application.Current.MainWindow;
+            MsgBox.MessageBtnOkay.Visibility = Visibility.Hidden;
+            MsgBox.MessageBtnYes.Visibility = Visibility.Hidden;
+            MsgBox.MessageBtnNo.Visibility = Visibility.Hidden;
+            MsgBox.MessageBody.Text = Message;
+            MsgBox.MessageTitle.Text = "";
+            MsgBox.Buttons = MessageBoxButton.OK;
+
+            MsgBox.Show();
             return MsgBox.Result;
         }
 

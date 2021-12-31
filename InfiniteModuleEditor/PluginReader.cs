@@ -92,7 +92,7 @@ namespace InfiniteModuleEditor
                 case "_field_skip":
                     Position = AdvancePosition(Node, Position, int.Parse(Node.Attributes.GetNamedItem("length").Value), true);
                     if (OldPosition != Position)
-                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition });
+                        PluginItems.Add(new PluginItem { Name = Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition, Value = int.Parse(Node.Attributes.GetNamedItem("length").Value) });
                     break;
                 case "_field_block_64":
                 case "_field_block_v2":
@@ -302,7 +302,7 @@ namespace InfiniteModuleEditor
                 case "_field_skip":
                     Position = AdvancePosition(Node, Position, int.Parse(Node.Attributes.GetNamedItem("length").Value), TargetParent);
                     if (OldPosition != Position)
-                        PluginItems.Add(new PluginItem { Name = TargetParent + " " + BlockNumber + ": " + Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition });
+                        PluginItems.Add(new PluginItem { Name = TargetParent + " " + BlockNumber + ": " + Node.Attributes.GetNamedItem("name").Value, FieldType = PluginField.Padding, Offset = OldPosition, Value = int.Parse(Node.Attributes.GetNamedItem("length").Value) });
                     break;
                 case "_field_block_64":
                 case "_field_block_v2":
@@ -534,6 +534,7 @@ namespace InfiniteModuleEditor
             {
                 if (PluginItems[y].FieldType == PluginField.TagBlock)
                 {
+                    System.Diagnostics.Debug.WriteLine("Looking for blocks at {0}", PluginItems[y].Offset + 16);
                     int BlockCount = BitConverter.ToInt32(Tag.TagData, PluginItems[y].Offset + 16);
                     if (BlockCount > 0)
                     {

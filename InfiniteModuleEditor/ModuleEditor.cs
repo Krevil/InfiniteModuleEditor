@@ -252,9 +252,9 @@ namespace InfiniteModuleEditor
             }
             */
 
-            TagStream.Seek(tag.Header.StringIDCount, SeekOrigin.Current); //Data starts here after the "StringID" section which is probably something else
             //TagStream.Seek(tag.Header.HeaderSize, SeekOrigin.Begin); //just to be sure
             TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
+            TagStream.Seek(tag.Header.ZoneSetDataSize, SeekOrigin.Current); //Data starts here after the "StringID" section which is probably something else
 
             //hacky fix for biped tags and similar to skip over unknown data that is considered part of the tag for some reason
             int CurrentOffset = (int)TagStream.Position;
@@ -294,6 +294,177 @@ namespace InfiniteModuleEditor
             }
             System.Diagnostics.Debug.WriteLine("Loading " + PluginToLoad);
             List <PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
+
+            GetTagValues(PluginItems, tag);
+
+            tag.TagValues = PluginItems;
+
+            return tag;
+        }
+
+        public static Tag ReadTag(FileStream TagStream, string ShortTagName)
+        {
+
+            Tag tag = new Tag();
+            byte[] TagHeader = new byte[80];
+
+
+            //FileStream fileStream = new FileStream(FilePath, FileMode.Open);
+            TagStream.Seek(0, SeekOrigin.Begin);
+            TagStream.Read(TagHeader, 0, 80);
+
+
+            GCHandle HeaderHandle = GCHandle.Alloc(TagHeader, GCHandleType.Pinned);
+            tag.Header = (FileHeader)Marshal.PtrToStructure(HeaderHandle.AddrOfPinnedObject(), typeof(FileHeader)); //No idea how this magic bytes to structure stuff works, I just got this from github
+            HeaderHandle.Free();
+
+            tag.TagDependencyArray = new TagDependency[tag.Header.DependencyCount];
+            tag.DataBlockArray = new DataBlock[tag.Header.DataBlockCount];
+            tag.TagStructArray = new TagStruct[tag.Header.TagStructCount];
+            tag.DataReferenceArray = new DataReference[tag.Header.DataReferenceCount];
+            tag.TagReferenceFixupArray = new TagReferenceFixup[tag.Header.TagReferenceCount];
+            //tag.StringIDArray = new StringID[tag.Header.StringIDCount]; //Not sure about the StringIDCount. Needs investigation
+            tag.StringTable = new byte[tag.Header.StringTableSize];
+
+            for (long l = 0; l < tag.Header.DependencyCount; l++) //For each tag dependency, fill in its values
+            {
+                byte[] TagDependencyBytes = new byte[Marshal.SizeOf(tag.TagDependencyArray[l])];
+                TagStream.Read(TagDependencyBytes, 0, Marshal.SizeOf(tag.TagDependencyArray[l]));
+                GCHandle TagDependencyHandle = GCHandle.Alloc(TagDependencyBytes, GCHandleType.Pinned);
+                tag.TagDependencyArray[l] = (TagDependency)Marshal.PtrToStructure(TagDependencyHandle.AddrOfPinnedObject(), typeof(TagDependency));
+                TagDependencyHandle.Free();
+            }
+
+            for (long l = 0; l < tag.Header.DataBlockCount; l++)
+            {
+                byte[] DataBlockBytes = new byte[Marshal.SizeOf(tag.DataBlockArray[l])];
+                TagStream.Read(DataBlockBytes, 0, Marshal.SizeOf(tag.DataBlockArray[l]));
+                GCHandle DataBlockHandle = GCHandle.Alloc(DataBlockBytes, GCHandleType.Pinned);
+                tag.DataBlockArray[l] = (DataBlock)Marshal.PtrToStructure(DataBlockHandle.AddrOfPinnedObject(), typeof(DataBlock));
+                DataBlockHandle.Free();
+            }
+
+            for (long l = 0; l < tag.Header.TagStructCount; l++)
+            {
+                byte[] TagStructBytes = new byte[Marshal.SizeOf(tag.TagStructArray[l])];
+                TagStream.Read(TagStructBytes, 0, Marshal.SizeOf(tag.TagStructArray[l]));
+                GCHandle TagStructHandle = GCHandle.Alloc(TagStructBytes, GCHandleType.Pinned);
+                tag.TagStructArray[l] = (TagStruct)Marshal.PtrToStructure(TagStructHandle.AddrOfPinnedObject(), typeof(TagStruct));
+                TagStructHandle.Free();
+            }
+
+
+            for (long l = 0; l < tag.Header.DataReferenceCount; l++)
+            {
+                byte[] DataReferenceBytes = new byte[Marshal.SizeOf(tag.DataReferenceArray[l])];
+                TagStream.Read(DataReferenceBytes, 0, Marshal.SizeOf(tag.DataReferenceArray[l]));
+                GCHandle DataReferenceHandle = GCHandle.Alloc(DataReferenceBytes, GCHandleType.Pinned);
+                tag.DataReferenceArray[l] = (DataReference)Marshal.PtrToStructure(DataReferenceHandle.AddrOfPinnedObject(), typeof(DataReference));
+                DataReferenceHandle.Free();
+            }
+
+            for (long l = 0; l < tag.Header.TagReferenceCount; l++)
+            {
+                byte[] TagReferenceBytes = new byte[Marshal.SizeOf(tag.TagReferenceFixupArray[l])];
+                TagStream.Read(TagReferenceBytes, 0, Marshal.SizeOf(tag.TagReferenceFixupArray[l]));
+                GCHandle TagReferenceHandle = GCHandle.Alloc(TagReferenceBytes, GCHandleType.Pinned);
+                tag.TagReferenceFixupArray[l] = (TagReferenceFixup)Marshal.PtrToStructure(TagReferenceHandle.AddrOfPinnedObject(), typeof(TagReferenceFixup));
+                TagReferenceHandle.Free();
+            }
+
+            //Not sure about this stuff, might not be in every tag?
+            /*
+            if (tag.Header.ZoneSetDataSize > 1)
+            {
+                byte[] ZoneSetHeader = new byte[16];
+                fileStream.Read(ZoneSetHeader, 0, 16);
+                GCHandle ZoneSetHandle = GCHandle.Alloc(ZoneSetHeader, GCHandleType.Pinned);
+                tag.ZoneSetInfoHeader = (ZoneSetInformationHeader)Marshal.PtrToStructure(ZoneSetHandle.AddrOfPinnedObject(), typeof(ZoneSetInformationHeader));
+                ZoneSetHandle.Free();
+
+                tag.ZoneSetEntryArray = new ZoneSetEntry[tag.ZoneSetInfoHeader.ZoneSetCount];
+                long ZoneSetTagCount = 0;
+                foreach (ZoneSetEntry zse in tag.ZoneSetEntryArray)
+                {
+                    ZoneSetTagCount += zse.TagCount;
+                }
+                tag.ZoneSetTagArray = new ZoneSetTag[ZoneSetTagCount];
+            }
+            */
+
+            TagStream.Read(tag.StringTable, 0, (int)tag.Header.StringTableSize); //better hope this never goes beyond sizeof(int)
+            TagStream.Seek(tag.Header.ZoneSetDataSize, SeekOrigin.Current); //Data starts here after the "StringID" section which is probably something else
+
+            //hacky fix for biped tags and similar to skip over unknown data that is considered part of the tag for some reason
+            /* won't work if we don't know the global tag id
+            int CurrentOffset = (int)TagStream.Position;
+            int TagDataOffset = (int)TagStream.Position;
+            byte[] TempBuffer = new byte[4];
+            TagStream.Read(TempBuffer, 0, 4);
+            while (BitConverter.ToInt32(TempBuffer, 0) != GlobalTagId)
+            {
+                TagStream.Read(TempBuffer, 0, 4);
+            }
+            TagStream.Seek(-12, SeekOrigin.Current);
+            TagDataOffset = (int)TagStream.Position - TagDataOffset;
+            tag.TrueDataOffset = TagDataOffset;
+            TagStream.Seek(CurrentOffset, SeekOrigin.Begin);
+            System.Diagnostics.Debug.WriteLine("{0} {1} {2}", CurrentOffset, GlobalTagId, TagDataOffset);
+            */
+            int TagDataOffset = 0;
+            if (Path.GetExtension(ShortTagName) == ".biped") //hackier fix. better hope all biped tags have this at the same size
+            {
+                TagDataOffset += 22172;
+            }
+            tag.TagData = new byte[tag.Header.DataSize];
+            TagStream.Read(tag.TagData, 0, (int)tag.Header.DataSize);
+
+            tag.MainStructSize = 0;
+            tag.TotalTagBlockDataSize = 0;
+
+            for (int i = 0; i < tag.DataBlockArray.Length; i++)
+            {
+                tag.TotalTagBlockDataSize += (int)tag.DataBlockArray[i].Size;
+            }
+
+            tag.MainStructSize = (int)(tag.Header.DataSize - tag.TotalTagBlockDataSize);
+
+            PluginReader pluginReader = new PluginReader();
+            bool LoadXML = true;
+            /* doesn't work without classid
+            string PluginToLoad = "Plugins\\" + Utilities.GetClassID(ClassId) + Path.GetExtension(ShortTagName).Substring(1) + ".xml";
+            if (!File.Exists(PluginToLoad))
+            {
+                if (File.Exists("Plugins\\" + Utilities.GetClassID(ClassId) + ".xml"))
+                    PluginToLoad = "Plugins\\" + Utilities.GetClassID(ClassId) + ".xml";
+                else LoadXML = false;
+            }
+            */
+            string PluginToLoad = "Plugins\\";
+            switch (Path.GetExtension(ShortTagName))
+            {
+                case ".grapplehookdefinitiontag":
+                    PluginToLoad += "saghgrapplehookdefinitiontag.xml";
+                break;
+                case ".biped":
+                    PluginToLoad += "bipdbiped.xml";
+                break;
+                case ".model":
+                    PluginToLoad += "hlmtmodel.xml";
+                break;
+                case ".projectile":
+                    PluginToLoad += "projprojectile.xml";
+                break;
+                case ".weapon":
+                    PluginToLoad += "weapweapon.xml";
+                break;
+                default:
+                    MessageBox.Show("Couldn't find a suitable plugin for tag " + ShortTagName + "\nUsing generic fields to display tag");
+                LoadXML = false;
+                break;
+            }
+            System.Diagnostics.Debug.WriteLine("Loading " + PluginToLoad);
+            List<PluginItem> PluginItems = LoadXML ? pluginReader.LoadPlugin(PluginToLoad, tag, TagDataOffset) : pluginReader.LoadGenericTag(tag, TagDataOffset);
 
             GetTagValues(PluginItems, tag);
 
@@ -489,6 +660,80 @@ namespace InfiniteModuleEditor
                 ModuleStream.Write(CompressedModifiedTag, 0, CompressedModifiedTag.Length);
             }
             else return false;
+
+            return true;
+        }
+
+        public static bool WriteTag(FileStream TagStream, Tag Tag)
+        {
+            foreach (PluginItem Item in Tag.TagValues)
+            {
+                if (Item.GetModified())
+                {
+                    TagStream.Seek(Item.Offset + Tag.Header.HeaderSize, SeekOrigin.Begin);
+                    switch (Item.FieldType)
+                    {
+                        case PluginField.Real:
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Item.Value)), 0, 4);
+                            break;
+                        case PluginField.StringID:
+                        case PluginField.Int32:
+                        case PluginField.Flags32:
+                        case PluginField.Enum32:
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToUInt32(Item.Value)), 0, 4);
+                            break;
+                        case PluginField.Int16:
+                        case PluginField.Flags16:
+                        case PluginField.Enum16:
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToUInt16(Item.Value)), 0, 2);
+                            break;
+                        case PluginField.Enum8:
+                        case PluginField.Int8:
+                        case PluginField.Flags8:
+                            TagStream.WriteByte(Convert.ToByte(Item.Value));
+                            break;
+                        case PluginField.TagReference:
+                            //needs testing
+                            TagReference TagRef = new TagReference { GlobalID = Convert.ToInt32((Item.Value as string).Split(' ')[0]), AssetID = Convert.ToInt64((Item.Value as string).Split(' ')[1]), GroupTag = Convert.ToInt32((Item.Value as string).Split(' ')[2]), TypeInfo = 0, LocalHandle = 0 };
+                            TagStream.Seek(8, SeekOrigin.Current);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GlobalID)), 0, 4);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
+                            //tags don't seem to care what's in the data so we have to write the header
+                            TagStream.Seek((Tag.TagReferenceFixupArray.ToList().Find(x => x.FieldOffset == Item.Offset + Tag.Header.HeaderSize).DepdencyIndex * 24) + 80, SeekOrigin.Begin);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GroupTag)), 0, 4);
+                            TagStream.Seek(4, SeekOrigin.Current);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt64(TagRef.AssetID)), 0, 8);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(TagRef.GlobalID)), 0, 4);
+                            //and that doesn't seem to work either ?????????????????????????
+                            break;
+                        case PluginField.DataReference:
+                            DataReferenceField DataRef = (DataReferenceField)Item.Value;
+                            TagStream.Seek(20, SeekOrigin.Current);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToInt32(DataRef.Size)), 0, 4);
+                            break;
+                        case PluginField.ShortBounds:
+                            ShortBounds Int16Bounds = new ShortBounds { MinBound = Convert.ToInt16((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToInt16((Item.Value as string).Split(' ')[1]) };
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Int16Bounds.MinBound)), 0, 2);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Int16Bounds.MaxBound)), 0, 2);
+                            break;
+                        case PluginField.RealBounds:
+                            RealBounds FloatBounds = new RealBounds { MinBound = Convert.ToSingle((Item.Value as string).Split(' ')[0]), MaxBound = Convert.ToSingle((Item.Value as string).Split(' ')[1]) };
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(FloatBounds.MinBound)), 0, 4);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(FloatBounds.MaxBound)), 0, 4);
+                            break;
+                        case PluginField.Vector3D:
+                            RealVector3D Vector = new RealVector3D { I = Convert.ToSingle((Item.Value as string).Split(' ')[0]), J = Convert.ToSingle((Item.Value as string).Split(' ')[1]), K = Convert.ToSingle((Item.Value as string).Split(' ')[2]) };
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.I)), 0, 4);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.J)), 0, 4);
+                            TagStream.Write(BitConverter.GetBytes(Convert.ToSingle(Vector.K)), 0, 4);
+                            break;
+                        default:
+                            MessageBox.Show("Unrecognized field type " + Item.FieldType + " in Item " + Item.Name + " at offset " + Item.Offset);
+                            break;
+                    }
+                }
+            }
 
             return true;
         }

@@ -32,6 +32,7 @@ namespace InfiniteModuleEditor
         public bool TagOpen = false;
         public string TagFileName;
         public MemoryStream TagStream;
+        public FileStream TagFileStream;
 
         //TODO: UI style improvements, add a header so user knows what module they are editing, parse tag blocks or you won't be able to read anything with them
 
@@ -107,12 +108,12 @@ namespace InfiniteModuleEditor
             if (!TagOpen && FileStreamOpen)
             {
                 StatusBar.Text = " Loading tag...";
-                string TagName = e.AddedItems[0].ToString();
-                TagNameText.Text = TagName;
+                TagFileName = e.AddedItems[0].ToString();
+                TagNameText.Text = TagFileName;
                 TagNameText.Visibility = Visibility.Visible;
-                TagStream = ModuleEditor.GetTag(Module, ModuleStream, TagName);
-                Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagName)), out ModuleFile);
-                ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagName.Substring(TagName.LastIndexOf("\\") + 1, TagName.Length - TagName.LastIndexOf("\\") - 2), ModuleFile);
+                TagStream = ModuleEditor.GetTag(Module, ModuleStream, TagFileName);
+                Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagFileName)), out ModuleFile);
+                ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagFileName.Substring(TagFileName.LastIndexOf("\\") + 1, TagFileName.Length - TagFileName.LastIndexOf("\\") - 2), ModuleFile);
                 TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
                 TagViewer.Visibility = Visibility.Visible;
                 TagSearch.Visibility = Visibility.Visible;
@@ -190,7 +191,6 @@ namespace InfiniteModuleEditor
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
             TagList.SelectedItem = null;
-
         }
 
         private void SaveAndCloseButton_Click(object sender, RoutedEventArgs e)
@@ -283,7 +283,7 @@ namespace InfiniteModuleEditor
         {
             var sfd = new SaveFileDialog
             {
-                FileName = TagFileName
+                FileName = TagFileName.Substring(TagFileName.LastIndexOf("\\") + 1, TagFileName.Length - TagFileName.LastIndexOf("\\") - 2)
             };
             if (sfd.ShowDialog() == true)
             {
@@ -294,6 +294,86 @@ namespace InfiniteModuleEditor
                 OutputStream.Close();
                 StatusBar.Text = " Ready...";
             }
+        }
+
+        private void Open_Tag_Click(object sender, RoutedEventArgs e)
+        {
+            if (!TagOpen)
+            {
+                var ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == true)
+                {
+                    TagFileStream = new FileStream(ofd.FileName, FileMode.Open);
+                    TagNameText.Text = ofd.FileName;
+                    TagNameText.Visibility = Visibility.Visible;
+                    ModuleFile = new ModuleFile();
+                    ModuleFile.Tag = ModuleEditor.ReadTag(TagFileStream, ofd.SafeFileName);
+                    TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
+                    TagViewer.Visibility = Visibility.Visible;
+                    TagSearch.Visibility = Visibility.Visible;
+                    FileSaveButton.Visibility = Visibility.Visible;
+                    FileCloseButton.Visibility = Visibility.Visible;
+                    FileSaveAndCloseButton.Visibility = Visibility.Visible;
+                    TagOpen = true;
+                    StatusBar.Text = " Ready...";
+                    // do the tag data filter when opening tag // alternatively you could reset that filter when opening
+                    TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+                }
+            }
+            else
+            {
+                GenericMessageBox.Show("You already have a tag open. Close it before opening another.", "Error", MessageBoxButton.OK);
+                TagList.SelectedItem = null;
+            }
+        }
+
+        private void FileSaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            StatusBar.Text = " Saving...";
+            bool Result = ModuleEditor.WriteTag(TagFileStream, ModuleFile.Tag);
+
+            if (Result)
+                GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+            else
+                GenericMessageBox.Show("Unable to save file, it may be in use by another process", "Error", MessageBoxButton.OK);
+            StatusBar.Text = " Ready...";
+        }
+
+        private void FileSaveAndCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            StatusBar.Text = " Saving...";
+            bool Result = ModuleEditor.WriteTag(TagFileStream, ModuleFile.Tag);
+            //save compressed block from moduleeditor method
+            if (Result)
+            {
+                GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
+                TagFileStream.Close();
+                FileSaveButton.Visibility = Visibility.Hidden;
+                FileCloseButton.Visibility = Visibility.Hidden;
+                FileSaveAndCloseButton.Visibility = Visibility.Hidden;
+                TagViewer.Visibility = Visibility.Hidden;
+                TagSearch.Visibility = Visibility.Hidden;
+                TagNameText.Visibility = Visibility.Hidden;
+                TagOpen = false;
+                TagList.SelectedItem = null;
+            }
+            else
+                GenericMessageBox.Show("Unable to save file, it may be in use by another process", "Error", MessageBoxButton.OK);
+
+            StatusBar.Text = " Ready...";
+        }
+
+        private void FileCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            TagFileStream.Close();
+            FileSaveButton.Visibility = Visibility.Hidden;
+            FileCloseButton.Visibility = Visibility.Hidden;
+            FileSaveAndCloseButton.Visibility = Visibility.Hidden;
+            TagViewer.Visibility = Visibility.Hidden;
+            TagSearch.Visibility = Visibility.Hidden;
+            TagNameText.Visibility = Visibility.Hidden;
+            TagOpen = false;
+            TagList.SelectedItem = null;
         }
     }
 }

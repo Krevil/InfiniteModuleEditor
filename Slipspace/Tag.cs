@@ -63,10 +63,10 @@ namespace InfiniteModuleEditor
         public uint StringTableSize;
 
         [FieldOffset(48)]
-        public int StringIDCount;
+        public uint ZoneSetDataSize;
 
         [FieldOffset(52)]
-        public uint ZoneSetDataSize;
+        public uint UnknownProperty2;
 
         [FieldOffset(56)]
         public uint HeaderSize;
@@ -78,7 +78,7 @@ namespace InfiniteModuleEditor
         public uint ResourceDataSize;
 
         [FieldOffset(68)]
-        public int UnknownProperty2;
+        public int UnknownProperty3;
 
         [FieldOffset(72)]
         public byte HeaderAlignment;
@@ -90,10 +90,10 @@ namespace InfiniteModuleEditor
         public byte ResourceDataAligment;
 
         [FieldOffset(75)]
-        public byte UnknownProperty3;
+        public byte UnknownProperty4;
 
         [FieldOffset(76)]
-        public int UnknownProperty4;
+        public int UnknownProperty5;
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 24)]
