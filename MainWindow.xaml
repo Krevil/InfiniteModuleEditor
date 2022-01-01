@@ -792,15 +792,6 @@
             </Grid.RowDefinitions>
             <TextBox x:Name="TagNameText" Background="#FF282828" BorderBrush="#FF646464" Text="" FontSize="20" Foreground="#FFC8C8C8" Margin="0,-3,0,0" Height="30" VerticalAlignment="Top" Visibility="Hidden"/>
             <TextBox x:Name="TagSearch" Background="#FF282828" BorderBrush="#FF646464" Text="Filter Tag Fields" Grid.Row="1" FontSize="20" Foreground="#FFC8C8C8" Margin="0,0,0,0" Height="30" VerticalAlignment="Top" TextChanged="TagSearch_TextChanged" GotFocus="TagSearch_GotFocus" LostFocus="TagSearch_LostFocus" Visibility="Hidden" />
-            <!-- <DataGrid x:Name="TagViewer" Background="#FF1E1E1E" BorderBrush="#FF646464" Grid.Row="2" HorizontalAlignment="Stretch" Margin="0,0,0,0" Foreground="#FF1E1E1E" CellEditEnding="TagViewer_CellEditEnding" Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
-                <ItemsControl.Template>
-                    <ControlTemplate>
-                        <ScrollViewer x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate}">
-                            <ItemsPresenter/>
-                        </ScrollViewer>
-                    </ControlTemplate>
-                </ItemsControl.Template>
-            </DataGrid> -->
             <ScrollViewer Grid.Row="2" VerticalAlignment="Top" x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Template="{DynamicResource ScrollViewerControlTemplate}">
                 <Grid x:Name="TagViewer">
                     <Grid.RowDefinitions>

@@ -77,9 +77,8 @@ namespace InfiniteModuleEditor
                     Close_Module.IsEnabled = true;
                     FileStreamOpen = true;
                     StatusBar.Text = " Ready...";
-                    //show tag list, make clickable
                 }
-                catch // infinite is running
+                catch
                 {
                     GenericMessageBox.Show("This file is open in another process", "Error", MessageBoxButton.OK);
                     StatusBar.Text = " Ready...";
@@ -182,8 +181,6 @@ namespace InfiniteModuleEditor
         {
             StatusBar.Text = " Saving...";
             bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
-            //save compressed block from moduleeditor method
-
             if (Result)
                 GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
             else
@@ -211,7 +208,6 @@ namespace InfiniteModuleEditor
         {
             StatusBar.Text = " Saving...";
             bool Result = ModuleEditor.WriteTag(ModuleFile, TagStream, ModuleStream);
-            //save compressed block from moduleeditor method
             if (Result)
             {
                 GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
@@ -271,7 +267,7 @@ namespace InfiniteModuleEditor
         {
             if (TagViewer != null)
             {
-                if (TagSearch.Text != "")
+                if (TagSearch.Text != "" && TagSearch.Text != "Filter Tag Fields")
                 {
                     List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text) == true);
                     foreach (TagField Child in TagViewer.Children)
@@ -371,8 +367,6 @@ namespace InfiniteModuleEditor
                     FileSaveAndCloseButton.Visibility = Visibility.Visible;
                     TagOpen = true;
                     StatusBar.Text = " Ready...";
-                    // do the tag data filter when opening tag // alternatively you could reset that filter when opening
-                    //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
                 }
             }
             else
@@ -398,7 +392,6 @@ namespace InfiniteModuleEditor
         {
             StatusBar.Text = " Saving...";
             bool Result = ModuleEditor.WriteTag(TagFileStream, ModuleFile.Tag);
-            //save compressed block from moduleeditor method
             if (Result)
             {
                 GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
