@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.IO;
+using InfiniteModuleEditor.Controls;
 using System.Xml;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.InteropServices;
@@ -28,7 +29,7 @@ namespace InfiniteModuleEditor
         public Module Module;
         public FileStream ModuleStream;
         public bool FileStreamOpen = false;
-        public ModuleFile ModuleFile;
+        public static ModuleFile ModuleFile;
         public bool TagOpen = false;
         public string TagFileName;
         public MemoryStream TagStream;
@@ -114,7 +115,24 @@ namespace InfiniteModuleEditor
                 TagStream = ModuleEditor.GetTag(Module, ModuleStream, TagFileName);
                 Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagFileName)), out ModuleFile);
                 ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagFileName.Substring(TagFileName.LastIndexOf("\\") + 1, TagFileName.Length - TagFileName.LastIndexOf("\\") - 2), ModuleFile);
-                TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
+                TagSearch.Text = "";
+                int RowIndex = 0;
+                foreach (PluginItem PI in ModuleFile.Tag.TagValues)
+                {
+                    TagViewer.RowDefinitions.Add(new RowDefinition());
+                    TagField TF = new TagField
+                    {
+                        NameField = PI.Name,
+                        TypeField = PI.FieldType.ToString(),
+                        ValueField = Convert.ToString(PI.Value),
+                        OffsetField = PI.Offset.ToString(),
+                        PluginItem = PI
+                    };
+                    Grid.SetRow(TF, RowIndex);
+                    TagViewer.Children.Add(TF);
+                    RowIndex++;
+                }
+                //TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
                 TagViewer.Visibility = Visibility.Visible;
                 TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
@@ -124,7 +142,8 @@ namespace InfiniteModuleEditor
                 TagOpen = true;
                 StatusBar.Text = " Ready...";
                 // do the tag data filter when opening tag // alternatively you could reset that filter when opening
-                TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
+                
+                //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
             }
             else
             {
@@ -251,7 +270,13 @@ namespace InfiniteModuleEditor
 
         private void TagSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+            TagViewer.Children.Clear();
+            List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+            foreach (PluginItem PI in FilteredList)
+            {
+                TagViewer.Children.Add(new TagField { NameField = PI.Name, TypeField = PI.FieldType.ToString(), ValueField = Convert.ToString(PI.Value) });
+            }
+            //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
         }
 
         private void Menu_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -308,7 +333,23 @@ namespace InfiniteModuleEditor
                     TagNameText.Visibility = Visibility.Visible;
                     ModuleFile = new ModuleFile();
                     ModuleFile.Tag = ModuleEditor.ReadTag(TagFileStream, ofd.SafeFileName);
-                    TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
+                    TagSearch.Text = "";
+                    int RowIndex = 0;
+                    foreach (PluginItem PI in ModuleFile.Tag.TagValues)
+                    {
+                        TagViewer.RowDefinitions.Add(new RowDefinition());
+                        TagField TF = new TagField
+                        {
+                            NameField = PI.Name,
+                            TypeField = PI.FieldType.ToString(),
+                            ValueField = Convert.ToString(PI.Value),
+                            OffsetField = PI.Offset.ToString(),
+                            PluginItem = PI
+                        };
+                        Grid.SetRow(TF, RowIndex);
+                        TagViewer.Children.Add(TF);
+                        RowIndex++;
+                    }
                     TagViewer.Visibility = Visibility.Visible;
                     TagSearch.Visibility = Visibility.Visible;
                     FileSaveButton.Visibility = Visibility.Visible;
@@ -317,7 +358,7 @@ namespace InfiniteModuleEditor
                     TagOpen = true;
                     StatusBar.Text = " Ready...";
                     // do the tag data filter when opening tag // alternatively you could reset that filter when opening
-                    TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+                    //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
                 }
             }
             else
@@ -374,6 +415,18 @@ namespace InfiniteModuleEditor
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
             TagList.SelectedItem = null;
+        }
+
+        public void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                BorderThickness = new Thickness(7);
+            }
+            else
+            {
+                BorderThickness = new Thickness(0);
+            }
         }
     }
 }

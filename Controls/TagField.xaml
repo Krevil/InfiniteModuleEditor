@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="InfiniteModuleEditor.Controls.TagField"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:InfiniteModuleEditor.Controls"
+             mc:Ignorable="d"  Height="20">
+    <Grid Background="#FF2D2D2D">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock x:Name="FieldName" Grid.Column="0" Text="Field Name" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20"/>
+        <GridSplitter Grid.Column="0"  Width="2" Background="#FF4B4B4B"/>
+        <TextBox x:Name="FieldValue" Grid.Column="1" Text="Field Value" Background="#FF2D2D2D" Foreground="#FFC8C8C8" BorderBrush="{x:Null}" TextChanged="FieldValue_TextChanged" Margin="5,0,5,0"  Height="20"/>
+        <GridSplitter Grid.Column="1"  Width="2" Background="#FF4B4B4B"/>
+        <TextBlock x:Name="FieldType" Grid.Column="2" Text="Field Type" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20"/>
+        <GridSplitter Grid.Column="2"  Width="2" Background="#FF4B4B4B"/>
+        <TextBlock x:Name="FieldOffset" Grid.Column="3" Text="Field Offset" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20"/>
+    </Grid>
+</UserControl>

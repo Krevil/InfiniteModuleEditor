@@ -3,9 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:InfiniteModuleEditor"
+        xmlns:local="clr-namespace:InfiniteModuleEditor" xmlns:controls="clr-namespace:InfiniteModuleEditor.Controls"
         mc:Ignorable="d"
-        Title="Halo Infinite Module Editor" Height="720" Width="1280" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True">
+        Title="Halo Infinite Module Editor" Height="720" Width="1280" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" BorderThickness="0" SizeChanged="Window_SizeChanged">
     <Window.DataContext>
         <local:Module/>
     </Window.DataContext>
@@ -743,8 +743,8 @@
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition MaxWidth="800"/>
-            <ColumnDefinition MinWidth="800"/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Height="25" VerticalAlignment="Top">
             <Rectangle Fill="#FF2D2D2D" Stroke="#FF646464" Margin="1,0,-1,0" MouseLeftButtonDown="Menu_MouseLeftButtonDown" />
@@ -792,7 +792,7 @@
             </Grid.RowDefinitions>
             <TextBox x:Name="TagNameText" Background="#FF282828" BorderBrush="#FF646464" Text="" FontSize="20" Foreground="#FFC8C8C8" Margin="0,-3,0,0" Height="30" VerticalAlignment="Top" Visibility="Hidden"/>
             <TextBox x:Name="TagSearch" Background="#FF282828" BorderBrush="#FF646464" Text="" Grid.Row="1" FontSize="20" Foreground="#FFC8C8C8" Margin="0,0,0,0" Height="30" VerticalAlignment="Top" TextChanged="TagSearch_TextChanged" Visibility="Hidden" />
-            <DataGrid x:Name="TagViewer" Background="#FF1E1E1E" BorderBrush="#FF646464" Grid.Row="2" HorizontalAlignment="Stretch" Margin="0,0,0,0" Foreground="#FF1E1E1E" CellEditEnding="TagViewer_CellEditEnding" Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
+            <!-- <DataGrid x:Name="TagViewer" Background="#FF1E1E1E" BorderBrush="#FF646464" Grid.Row="2" HorizontalAlignment="Stretch" Margin="0,0,0,0" Foreground="#FF1E1E1E" CellEditEnding="TagViewer_CellEditEnding" Visibility="Hidden" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
                 <ItemsControl.Template>
                     <ControlTemplate>
                         <ScrollViewer x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate}">
@@ -800,7 +800,13 @@
                         </ScrollViewer>
                     </ControlTemplate>
                 </ItemsControl.Template>
-            </DataGrid>
+            </DataGrid> -->
+            <ScrollViewer Grid.Row="2" VerticalAlignment="Top" x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate}">
+                <Grid x:Name="TagViewer">
+                    <Grid.RowDefinitions>
+                    </Grid.RowDefinitions>
+                </Grid>
+            </ScrollViewer>
         </Grid>
         <Grid Grid.Row="2" Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
             <Rectangle Fill="#FF1E1E1E" Stroke="#FF646464" HorizontalAlignment="Left" Height="30" Margin="0,629,0,0" VerticalAlignment="Top" Width="800"/>
