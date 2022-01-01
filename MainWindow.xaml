@@ -801,7 +801,7 @@
                     </ControlTemplate>
                 </ItemsControl.Template>
             </DataGrid> -->
-            <ScrollViewer Grid.Row="2" VerticalAlignment="Top" x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate}">
+            <ScrollViewer Grid.Row="2" VerticalAlignment="Top" x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Template="{DynamicResource ScrollViewerControlTemplate}">
                 <Grid x:Name="TagViewer">
                     <Grid.RowDefinitions>
                     </Grid.RowDefinitions>

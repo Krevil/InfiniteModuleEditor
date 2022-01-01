@@ -26,16 +26,16 @@ namespace InfiniteModuleEditor.Controls
             DataContext = this;
         }
 
-        public string NameField 
-        { 
-            get 
-            { 
-                return FieldName.Text; 
-            } 
-            set 
-            { 
-                FieldName.Text = value; 
-            } 
+        public string NameField
+        {
+            get
+            {
+                return FieldName.Text;
+            }
+            set
+            {
+                FieldName.Text = value;
+            }
         }
 
         public string ValueField
@@ -50,16 +50,16 @@ namespace InfiniteModuleEditor.Controls
             }
         }
 
-        public string TypeField 
-        { 
-            get 
-            { 
-                return FieldType.Text; 
-            } 
-            set 
+        public string TypeField
+        {
+            get
             {
-                FieldType.Text = value; 
-            } 
+                return FieldType.Text;
+            }
+            set
+            {
+                FieldType.Text = value;
+            }
         }
 
         public string OffsetField
@@ -74,24 +74,22 @@ namespace InfiniteModuleEditor.Controls
             }
         }
 
-        public PluginItem PluginItem { get; set; }
+        public int PluginItemIndex { get; set; }
 
         private void FieldValue_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (PluginItem == null)
-                return;
-            if (PluginItem.Value == null)
-                return;
-            try
+            if (((TextBox)sender).IsFocused)
             {
-                int Index = MainWindow.ModuleFile.Tag.TagValues.FindIndex(x => x.Offset == PluginItem.Offset && x.Name == PluginItem.Name);
-                PluginItem.Value = FieldValue.Text;
-                PluginItem.SetModified();
-                MainWindow.ModuleFile.Tag.TagValues[Index] = PluginItem;
-            }
-            catch
-            {
-                GenericMessageBox.Show("Couldn't parse input for " + PluginItem.Name, "Error", MessageBoxButton.OK);
+                try
+                {
+                    int Index = MainWindow.ModuleFile.Tag.TagValues.FindIndex(x => x.Offset == int.Parse(FieldOffset.Text) && x.Name == FieldName.Text);
+                    MainWindow.ModuleFile.Tag.TagValues[Index].Value = FieldValue.Text;
+                    MainWindow.ModuleFile.Tag.TagValues[Index].SetModified();
+                }
+                catch
+                {
+                    GenericMessageBox.Show("Couldn't parse input for " + FieldName.Text, "Error", MessageBoxButton.OK);
+                }
             }
         }
     }

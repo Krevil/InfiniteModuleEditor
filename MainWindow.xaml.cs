@@ -114,23 +114,22 @@ namespace InfiniteModuleEditor
                 Module.ModuleFiles.TryGetValue(Module.ModuleFiles.Keys.ToList().Find(x => x.Contains(TagFileName)), out ModuleFile);
                 ModuleFile.Tag = ModuleEditor.ReadTag(TagStream, TagFileName.Substring(TagFileName.LastIndexOf("\\") + 1, TagFileName.Length - TagFileName.LastIndexOf("\\") - 2), ModuleFile);
                 TagSearch.Text = "";
-                int RowIndex = 0;
-                foreach (PluginItem PI in ModuleFile.Tag.TagValues)
+                for (int i = 0; i < ModuleFile.Tag.TagValues.Count; i++)
                 {
                     TagViewer.RowDefinitions.Add(new RowDefinition());
                     TagField TF = new TagField
                     {
-                        NameField = PI.Name,
-                        TypeField = PI.FieldType.ToString(),
-                        ValueField = Convert.ToString(PI.Value),
-                        OffsetField = PI.Offset.ToString(),
-                        PluginItem = PI
+                        NameField = ModuleFile.Tag.TagValues[i].Name,
+                        TypeField = ModuleFile.Tag.TagValues[i].FieldType.ToString(),
+                        ValueField = Convert.ToString(ModuleFile.Tag.TagValues[i].Value),
+                        OffsetField = ModuleFile.Tag.TagValues[i].Offset.ToString(),
                     };
-                    Grid.SetRow(TF, RowIndex);
+                    Grid.SetRow(TF, i);
                     TagViewer.Children.Add(TF);
-                    RowIndex++;
                 }
                 TagViewer.Visibility = Visibility.Visible;
+                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
                 TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
                 CloseButton.Visibility = Visibility.Visible;
@@ -200,6 +199,8 @@ namespace InfiniteModuleEditor
             SaveAndCloseButton.Visibility = Visibility.Hidden;
             ExtractTagButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
+            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;
@@ -220,6 +221,8 @@ namespace InfiniteModuleEditor
                 SaveAndCloseButton.Visibility = Visibility.Hidden;
                 ExtractTagButton.Visibility = Visibility.Hidden;
                 TagViewer.Visibility = Visibility.Hidden;
+                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
                 TagSearch.Visibility = Visibility.Hidden;
                 TagNameText.Visibility = Visibility.Hidden;
                 TagOpen = false;
@@ -250,6 +253,8 @@ namespace InfiniteModuleEditor
                     SaveAndCloseButton.Visibility = Visibility.Hidden;
                     ExtractTagButton.Visibility = Visibility.Hidden;
                     TagViewer.Visibility = Visibility.Hidden;
+                    TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                    TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
                     TagSearch.Visibility = Visibility.Hidden;
                     TagNameText.Visibility = Visibility.Hidden;
                     TagOpen = false;
@@ -264,23 +269,29 @@ namespace InfiniteModuleEditor
 
         private void TagSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
-            TagViewer.Children.Clear();
-            List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text.ToLower()) == true);
-            int RowIndex = 0;
-            foreach (PluginItem PI in FilteredList)
+            if (TagViewer != null)
             {
-                TagViewer.RowDefinitions.Add(new RowDefinition());
-                TagField TF = new TagField
+                if (TagSearch.Text != "")
                 {
-                    NameField = PI.Name,
-                    TypeField = PI.FieldType.ToString(),
-                    ValueField = Convert.ToString(PI.Value),
-                    OffsetField = PI.Offset.ToString(),
-                    PluginItem = PI
-                };
-                Grid.SetRow(TF, RowIndex);
-                TagViewer.Children.Add(TF);
-                RowIndex++;
+                    List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text) == true);
+                    foreach (TagField Child in TagViewer.Children)
+                    {
+                        if (FilteredList.Exists(x => x.Offset == int.Parse(Child.OffsetField)))
+                        {
+                            Child.Visibility = Visibility.Visible;
+                            continue;
+                        }
+
+                        Child.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    foreach (TagField Child in TagViewer.Children)
+                    {
+                        Child.Visibility = Visibility.Visible;
+                    }
+                }
             }
         }
 
@@ -339,21 +350,19 @@ namespace InfiniteModuleEditor
                     ModuleFile = new ModuleFile();
                     ModuleFile.Tag = ModuleEditor.ReadTag(TagFileStream, ofd.SafeFileName);
                     TagSearch.Text = "";
-                    int RowIndex = 0;
-                    foreach (PluginItem PI in ModuleFile.Tag.TagValues)
+                    for (int i = 0; i < ModuleFile.Tag.TagValues.Count; i++)
                     {
                         TagViewer.RowDefinitions.Add(new RowDefinition());
                         TagField TF = new TagField
                         {
-                            NameField = PI.Name,
-                            TypeField = PI.FieldType.ToString(),
-                            ValueField = Convert.ToString(PI.Value),
-                            OffsetField = PI.Offset.ToString(),
-                            PluginItem = PI
+                            NameField = ModuleFile.Tag.TagValues[i].Name,
+                            TypeField = ModuleFile.Tag.TagValues[i].FieldType.ToString(),
+                            ValueField = Convert.ToString(ModuleFile.Tag.TagValues[i].Value),
+                            OffsetField = ModuleFile.Tag.TagValues[i].Offset.ToString(),
+                            PluginItemIndex = i
                         };
-                        Grid.SetRow(TF, RowIndex);
+                        Grid.SetRow(TF, i);
                         TagViewer.Children.Add(TF);
-                        RowIndex++;
                     }
                     TagViewer.Visibility = Visibility.Visible;
                     TagSearch.Visibility = Visibility.Visible;
@@ -398,6 +407,8 @@ namespace InfiniteModuleEditor
                 FileCloseButton.Visibility = Visibility.Hidden;
                 FileSaveAndCloseButton.Visibility = Visibility.Hidden;
                 TagViewer.Visibility = Visibility.Hidden;
+                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
                 TagSearch.Visibility = Visibility.Hidden;
                 TagNameText.Visibility = Visibility.Hidden;
                 TagOpen = false;
@@ -416,6 +427,8 @@ namespace InfiniteModuleEditor
             FileCloseButton.Visibility = Visibility.Hidden;
             FileSaveAndCloseButton.Visibility = Visibility.Hidden;
             TagViewer.Visibility = Visibility.Hidden;
+            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             TagSearch.Visibility = Visibility.Hidden;
             TagNameText.Visibility = Visibility.Hidden;
             TagOpen = false;

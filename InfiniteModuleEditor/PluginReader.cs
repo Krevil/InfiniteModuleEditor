@@ -534,7 +534,6 @@ namespace InfiniteModuleEditor
             {
                 if (PluginItems[y].FieldType == PluginField.TagBlock)
                 {
-                    System.Diagnostics.Debug.WriteLine("Looking for blocks at {0}", PluginItems[y].Offset + 16);
                     int BlockCount = BitConverter.ToInt32(Tag.TagData, PluginItems[y].Offset + 16);
                     if (BlockCount > 0)
                     {
@@ -545,15 +544,12 @@ namespace InfiniteModuleEditor
                             TagStruct TS = Tag.TagStructArray.First(x => x.FieldOffset == PluginItems[y].Offset);
                             DataBlock DB = Tag.DataBlockArray[TS.TargetIndex];
                             XmlNode PluginNode = PluginXml.SelectSingleNode("//_field_block_v2[@name='" + PluginItems[y].Name + "']");
-                            System.Diagnostics.Debug.WriteLine("Node name: {0} PluginItem Name {1}", PluginNode.Attributes.GetNamedItem("name").Value, PluginItems[y].Name);
                             int NodeNumber = 0;
                             int BlockNumber = 0;
                             if (PluginNode != null)
                             {
-                                System.Diagnostics.Debug.WriteLine("Node is not null");
                                 if (PluginNode.HasChildNodes && PluginNode.Attributes.GetNamedItem("name").Value == PluginItems[y].Name)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("Node has {0} children", PluginNode.ChildNodes.Count);
                                     for (int i = 0; i < DB.Size && BlockNumber < BlockCount;)
                                     {
                                         if (NodeNumber > PluginNode.ChildNodes.Count - 1)
@@ -563,7 +559,6 @@ namespace InfiniteModuleEditor
                                         }
                                         if (PluginNode.ChildNodes[NodeNumber].Name.ToLower() == "item")
                                             continue;
-                                        System.Diagnostics.Debug.WriteLine("Attempting to add {0}", PluginNode.ChildNodes[NodeNumber].Attributes.GetNamedItem("name").Value);
                                         i = AddPluginItems(PluginNode.ChildNodes[NodeNumber], PluginItems, (int)DB.Offset + i, PluginItems[y].Name, BlockNumber) - (int)DB.Offset;
                                         if (PluginNode.ChildNodes[NodeNumber].Name == "_field_array" || PluginNode.ChildNodes[NodeNumber].Name == "_field_struct")
                                         {
@@ -587,7 +582,6 @@ namespace InfiniteModuleEditor
                                             }
                                         }
                                         NodeNumber++;
-                                        //PluginItems.Add(new PluginItem { Name = "Tag Block " + TS.FieldOffset + " Unknown Field " + i, FieldType = PluginField.Int32, Offset = Offset + (int)DB.Offset + i });
                                     }
                                 }
                             }
