@@ -35,9 +35,7 @@ namespace InfiniteModuleEditor
         public MemoryStream TagStream;
         public FileStream TagFileStream;
 
-        //TODO: UI style improvements, add a header so user knows what module they are editing, parse tag blocks or you won't be able to read anything with them
-
-        //
+        //TODO: UI style improvements, parse tag blocks better
 
         public MainWindow()
         {
@@ -132,7 +130,6 @@ namespace InfiniteModuleEditor
                     TagViewer.Children.Add(TF);
                     RowIndex++;
                 }
-                //TagViewer.ItemsSource = ModuleFile.Tag.TagValues;
                 TagViewer.Visibility = Visibility.Visible;
                 TagSearch.Visibility = Visibility.Visible;
                 SaveButton.Visibility = Visibility.Visible;
@@ -141,9 +138,6 @@ namespace InfiniteModuleEditor
                 ExtractTagButton.Visibility = Visibility.Visible;
                 TagOpen = true;
                 StatusBar.Text = " Ready...";
-                // do the tag data filter when opening tag // alternatively you could reset that filter when opening
-                
-                //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true); 
             }
             else
             {
@@ -271,12 +265,23 @@ namespace InfiniteModuleEditor
         private void TagSearch_TextChanged(object sender, TextChangedEventArgs e)
         {
             TagViewer.Children.Clear();
-            List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
+            List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text.ToLower()) == true);
+            int RowIndex = 0;
             foreach (PluginItem PI in FilteredList)
             {
-                TagViewer.Children.Add(new TagField { NameField = PI.Name, TypeField = PI.FieldType.ToString(), ValueField = Convert.ToString(PI.Value) });
+                TagViewer.RowDefinitions.Add(new RowDefinition());
+                TagField TF = new TagField
+                {
+                    NameField = PI.Name,
+                    TypeField = PI.FieldType.ToString(),
+                    ValueField = Convert.ToString(PI.Value),
+                    OffsetField = PI.Offset.ToString(),
+                    PluginItem = PI
+                };
+                Grid.SetRow(TF, RowIndex);
+                TagViewer.Children.Add(TF);
+                RowIndex++;
             }
-            //TagViewer.ItemsSource = ModuleFile.Tag.TagValues.ToList().FindAll(x => x.Name.Contains(TagSearch.Text) == true);
         }
 
         private void Menu_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -427,6 +432,18 @@ namespace InfiniteModuleEditor
             {
                 BorderThickness = new Thickness(0);
             }
+        }
+
+        private void TagSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (TagSearch.Text == "Filter Tags")
+                TagSearch.Text = "";
+        }
+
+        private void TagSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (TagSearch.Text == "")
+                TagSearch.Text = "Filter Tag Fields";
         }
     }
 }
