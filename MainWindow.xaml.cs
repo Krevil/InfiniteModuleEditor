@@ -34,6 +34,7 @@ namespace InfiniteModuleEditor
         public string TagFileName;
         public MemoryStream TagStream;
         public FileStream TagFileStream;
+        public List<PluginItem> FilteredList;
 
         //TODO: UI style improvements, parse tag blocks better
 
@@ -126,14 +127,7 @@ namespace InfiniteModuleEditor
                     Grid.SetRow(TF, i);
                     TagViewer.Children.Add(TF);
                 }
-                TagViewer.Visibility = Visibility.Visible;
-                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                TagSearch.Visibility = Visibility.Visible;
-                SaveButton.Visibility = Visibility.Visible;
-                CloseButton.Visibility = Visibility.Visible;
-                SaveAndCloseButton.Visibility = Visibility.Visible;
-                ExtractTagButton.Visibility = Visibility.Visible;
+                ShowTagViewer(true);
                 TagOpen = true;
                 StatusBar.Text = " Ready...";
             }
@@ -191,15 +185,7 @@ namespace InfiniteModuleEditor
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             TagStream.Close();
-            SaveButton.Visibility = Visibility.Hidden;
-            CloseButton.Visibility = Visibility.Hidden;
-            SaveAndCloseButton.Visibility = Visibility.Hidden;
-            ExtractTagButton.Visibility = Visibility.Hidden;
-            TagViewer.Visibility = Visibility.Hidden;
-            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            TagSearch.Visibility = Visibility.Hidden;
-            TagNameText.Visibility = Visibility.Hidden;
+            HideTagViewer();
             TagOpen = false;
             TagList.SelectedItem = null;
         }
@@ -212,15 +198,7 @@ namespace InfiniteModuleEditor
             {
                 GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
                 TagStream.Close();
-                SaveButton.Visibility = Visibility.Hidden;
-                CloseButton.Visibility = Visibility.Hidden;
-                SaveAndCloseButton.Visibility = Visibility.Hidden;
-                ExtractTagButton.Visibility = Visibility.Hidden;
-                TagViewer.Visibility = Visibility.Hidden;
-                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                TagSearch.Visibility = Visibility.Hidden;
-                TagNameText.Visibility = Visibility.Hidden;
+                HideTagViewer();
                 TagOpen = false;
                 TagList.SelectedItem = null;
             }
@@ -244,15 +222,7 @@ namespace InfiniteModuleEditor
                 else
                 {
                     TagStream.Close();
-                    SaveButton.Visibility = Visibility.Hidden;
-                    CloseButton.Visibility = Visibility.Hidden;
-                    SaveAndCloseButton.Visibility = Visibility.Hidden;
-                    ExtractTagButton.Visibility = Visibility.Hidden;
-                    TagViewer.Visibility = Visibility.Hidden;
-                    TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                    TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                    TagSearch.Visibility = Visibility.Hidden;
-                    TagNameText.Visibility = Visibility.Hidden;
+                    HideTagViewer();
                     TagOpen = false;
                     TagList.SelectedItem = null;
                     ModuleStream.Close();
@@ -269,7 +239,7 @@ namespace InfiniteModuleEditor
             {
                 if (TagSearch.Text != "" && TagSearch.Text != "Filter Tag Fields")
                 {
-                    List<PluginItem> FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text) == true);
+                    FilteredList = ModuleFile.Tag.TagValues.FindAll(x => x.Name.ToLower().Contains(TagSearch.Text) == true);
                     foreach (TagField Child in TagViewer.Children)
                     {
                         if (FilteredList.Exists(x => x.Offset == int.Parse(Child.OffsetField)))
@@ -287,6 +257,7 @@ namespace InfiniteModuleEditor
                     {
                         Child.Visibility = Visibility.Visible;
                     }
+                    FilteredList = null;
                 }
             }
         }
@@ -360,11 +331,7 @@ namespace InfiniteModuleEditor
                         Grid.SetRow(TF, i);
                         TagViewer.Children.Add(TF);
                     }
-                    TagViewer.Visibility = Visibility.Visible;
-                    TagSearch.Visibility = Visibility.Visible;
-                    FileSaveButton.Visibility = Visibility.Visible;
-                    FileCloseButton.Visibility = Visibility.Visible;
-                    FileSaveAndCloseButton.Visibility = Visibility.Visible;
+                    ShowTagViewer(false);
                     TagOpen = true;
                     StatusBar.Text = " Ready...";
                 }
@@ -396,14 +363,7 @@ namespace InfiniteModuleEditor
             {
                 GenericMessageBox.Show("Done!", "Success", MessageBoxButton.OK);
                 TagFileStream.Close();
-                FileSaveButton.Visibility = Visibility.Hidden;
-                FileCloseButton.Visibility = Visibility.Hidden;
-                FileSaveAndCloseButton.Visibility = Visibility.Hidden;
-                TagViewer.Visibility = Visibility.Hidden;
-                TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-                TagSearch.Visibility = Visibility.Hidden;
-                TagNameText.Visibility = Visibility.Hidden;
+                HideTagViewer();
                 TagOpen = false;
                 TagList.SelectedItem = null;
             }
@@ -416,14 +376,7 @@ namespace InfiniteModuleEditor
         private void FileCloseButton_Click(object sender, RoutedEventArgs e)
         {
             TagFileStream.Close();
-            FileSaveButton.Visibility = Visibility.Hidden;
-            FileCloseButton.Visibility = Visibility.Hidden;
-            FileSaveAndCloseButton.Visibility = Visibility.Hidden;
-            TagViewer.Visibility = Visibility.Hidden;
-            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            TagSearch.Visibility = Visibility.Hidden;
-            TagNameText.Visibility = Visibility.Hidden;
+            HideTagViewer();
             TagOpen = false;
             TagList.SelectedItem = null;
         }
@@ -450,6 +403,65 @@ namespace InfiniteModuleEditor
         {
             if (TagSearch.Text == "")
                 TagSearch.Text = "Filter Tag Fields";
+        }
+
+        private void FieldNameSorter_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void FieldValueSorter_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void FieldTypeSorter_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        private void FieldOffsetSorter_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        public void HideTagViewer()
+        {
+            FileSaveButton.Visibility = Visibility.Hidden;
+            FileCloseButton.Visibility = Visibility.Hidden;
+            FileSaveAndCloseButton.Visibility = Visibility.Hidden;
+            SaveButton.Visibility = Visibility.Hidden;
+            CloseButton.Visibility = Visibility.Hidden;
+            SaveAndCloseButton.Visibility = Visibility.Hidden;
+            ExtractTagButton.Visibility = Visibility.Hidden;
+            TagViewer.Visibility = Visibility.Hidden;
+            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            TagViewerColumns.Visibility = Visibility.Hidden;
+            TagSearch.Visibility = Visibility.Hidden;
+            TagNameText.Visibility = Visibility.Hidden;
+        }
+
+        public void ShowTagViewer(bool TagFromModule)
+        {
+            TagViewer.Visibility = Visibility.Visible;
+            TagViewerColumns.Visibility = Visibility.Visible;
+            TagViewerScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Visible;
+            TagViewerScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+            TagSearch.Visibility = Visibility.Visible;
+            if (TagFromModule)
+            {
+                SaveButton.Visibility = Visibility.Visible;
+                CloseButton.Visibility = Visibility.Visible;
+                SaveAndCloseButton.Visibility = Visibility.Visible;
+                ExtractTagButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                FileSaveButton.Visibility = Visibility.Visible;
+                FileCloseButton.Visibility = Visibility.Visible;
+                FileSaveAndCloseButton.Visibility = Visibility.Visible;
+            }
         }
     }
 }

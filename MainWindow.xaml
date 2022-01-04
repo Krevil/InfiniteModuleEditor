@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:InfiniteModuleEditor" xmlns:controls="clr-namespace:InfiniteModuleEditor.Controls"
         mc:Ignorable="d"
-        Title="Halo Infinite Module Editor" Height="720" Width="1280" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" BorderThickness="0" SizeChanged="Window_SizeChanged">
+        Title="Halo Infinite Module Editor" Height="1080" Width="1920" WindowStyle="None" ResizeMode="CanResizeWithGrip" AllowsTransparency="True" BorderThickness="0" SizeChanged="Window_SizeChanged">
     <Window.DataContext>
         <local:Module/>
     </Window.DataContext>
@@ -737,7 +737,7 @@
     </Window.CommandBindings>
     <Grid Background="#FF1E1E1E">
         <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="25"/>
             <RowDefinition/>
             <RowDefinition Height="30"/>
             <RowDefinition Height="20"/>
@@ -792,6 +792,21 @@
             </Grid.RowDefinitions>
             <TextBox x:Name="TagNameText" Background="#FF282828" BorderBrush="#FF646464" Text="" FontSize="20" Foreground="#FFC8C8C8" Margin="0,-3,0,0" Height="30" VerticalAlignment="Top" Visibility="Hidden"/>
             <TextBox x:Name="TagSearch" Background="#FF282828" BorderBrush="#FF646464" Text="Filter Tag Fields" Grid.Row="1" FontSize="20" Foreground="#FFC8C8C8" Margin="0,0,0,0" Height="30" VerticalAlignment="Top" TextChanged="TagSearch_TextChanged" GotFocus="TagSearch_GotFocus" LostFocus="TagSearch_LostFocus" Visibility="Hidden" />
+            <Grid x:Name="TagViewerColumns" Background="#FF1E1E1E">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button x:Name="FieldNameSorter" Grid.Column="0" Content="Field Name" Background="#FF1E1E1E" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20" BorderBrush="#FF646464" Click="FieldNameSorter_Click" Template="{DynamicResource ButtonControlTemplate}"/>
+                <GridSplitter Grid.Column="0"  Width="2" Background="#FF4B4B4B"/>
+                <Button x:Name="FieldValueSorter" Grid.Column="1" Content="Field Value" Background="#FF1E1E1E" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20" BorderBrush="#FF646464" Click="FieldValueSorter_Click" Template="{DynamicResource ButtonControlTemplate}"/>
+                <GridSplitter Grid.Column="1"  Width="2" Background="#FF4B4B4B"/>
+                <Button x:Name="FieldTypeSorter" Grid.Column="2" Content="Field Type" Background="#FF1E1E1E" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20" BorderBrush="#FF646464" Click="FieldTypeSorter_Click" Template="{DynamicResource ButtonControlTemplate}"/>
+                <GridSplitter Grid.Column="2"  Width="2" Background="#FF4B4B4B"/>
+                <Button x:Name="FieldOffsetSorter" Grid.Column="3" Content="Field Offset" Background="#FF1E1E1E" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20" BorderBrush="#FF646464" Click="FieldOffsetSorter_Click" Template="{DynamicResource ButtonControlTemplate}"/>
+            </Grid>
             <ScrollViewer Grid.Row="2" VerticalAlignment="Top" x:Name="TagViewerScrollViewer" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Template="{DynamicResource ScrollViewerControlTemplate}">
                 <Grid x:Name="TagViewer">
                     <Grid.RowDefinitions>

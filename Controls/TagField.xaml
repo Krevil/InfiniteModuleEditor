@@ -7,17 +7,17 @@
              mc:Ignorable="d"  Height="20">
     <Grid Background="#FF2D2D2D">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="300"/>
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <TextBlock x:Name="FieldName" Grid.Column="0" Text="Field Name" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20"/>
+        <TextBox x:Name="FieldName" Grid.Column="0" Text="Field Name" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0" Height="20" IsReadOnly="True" BorderBrush="{x:Null}"/>
         <GridSplitter Grid.Column="0"  Width="2" Background="#FF4B4B4B"/>
-        <TextBox x:Name="FieldValue" Grid.Column="1" Text="Field Value" Background="#FF2D2D2D" Foreground="#FFC8C8C8" BorderBrush="{x:Null}" TextChanged="FieldValue_TextChanged" Margin="5,0,5,0"  Height="20"/>
+        <TextBox x:Name="FieldValue" Grid.Column="1" Text="Field Value" Background="{x:Null}" Foreground="#FFC8C8C8" BorderBrush="{x:Null}" TextChanged="FieldValue_TextChanged" Margin="5,0,5,0"  Height="20" HorizontalAlignment="Left"/>
         <GridSplitter Grid.Column="1"  Width="2" Background="#FF4B4B4B"/>
-        <TextBlock x:Name="FieldType" Grid.Column="2" Text="Field Type" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20"/>
+        <TextBlock x:Name="FieldType" Grid.Column="2" Text="Field Type" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20" HorizontalAlignment="Left"/>
         <GridSplitter Grid.Column="2"  Width="2" Background="#FF4B4B4B"/>
-        <TextBlock x:Name="FieldOffset" Grid.Column="3" Text="Field Offset" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20"/>
+        <TextBlock x:Name="FieldOffset" Grid.Column="3" Text="Field Offset" Background="#FF2D2D2D" Foreground="#FFC8C8C8" Margin="5,0,5,0"  Height="20" HorizontalAlignment="Left"/>
     </Grid>
 </UserControl>

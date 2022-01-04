@@ -507,11 +507,25 @@ namespace InfiniteModuleEditor
 
             for (int i = 0; i < Tag.Header.DataSize - Tag.TrueDataOffset; i += 4)
             {
+                System.Diagnostics.Debug.WriteLine("Loading field " + i);
                 PluginItems.Add(new PluginItem { Name = "Unknown Field " + i, FieldType = PluginField.Int32, Offset = Position });
                 Position += 4;
             }
 
             return PluginItems;
+        }
+
+        public int GetChildStructs(XmlNode PluginNode, List<PluginItem> PluginItems, DataBlock DB, int i, int y, int NodeNumber, int BlockNumber)
+        {
+            foreach (XmlNode Child in PluginNode.ChildNodes)
+            {
+                i = AddPluginItems(Child, PluginItems, (int)DB.Offset + i, PluginItems[y].Name, BlockNumber) - (int)DB.Offset;
+                if (Child.Name == "_field_array" || Child.Name == "_field_struct")
+                {
+                    i = GetChildStructs(Child, PluginItems, DB, i, y, NodeNumber, BlockNumber);
+                }
+            }
+            return i;
         }
 
 
@@ -567,17 +581,7 @@ namespace InfiniteModuleEditor
                                                 i = AddPluginItems(Child, PluginItems, (int)DB.Offset + i, PluginItems[y].Name, BlockNumber) - (int)DB.Offset;
                                                 if (Child.Name == "_field_array" || Child.Name == "_field_struct")
                                                 {
-                                                    foreach (XmlNode Grandchild in Child.ChildNodes)
-                                                    {
-                                                        i = AddPluginItems(Grandchild, PluginItems, (int)DB.Offset + i, PluginItems[y].Name, BlockNumber) - (int)DB.Offset;
-                                                        if (Grandchild.Name == "_field_array" || Child.Name == "_field_struct")
-                                                        {
-                                                            foreach (XmlNode Greatgrandchild in Grandchild.ChildNodes)
-                                                            {
-                                                                i = AddPluginItems(Greatgrandchild, PluginItems, (int)DB.Offset + i, PluginItems[y].Name, BlockNumber) - (int)DB.Offset; //This is already too far and should be using recursion
-                                                            }
-                                                        }
-                                                    }
+                                                    i = GetChildStructs(PluginNode, PluginItems, DB, i, y, NodeNumber, BlockNumber);
                                                 }
                                             }
                                         }
